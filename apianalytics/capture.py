@@ -16,6 +16,7 @@ def connect(host=None):
   if host is None:
     host = DEFAULT_HOST
 
+  print 'Connecting to %s' % host
   socket = context.socket(zmq.PUSH)
   socket.connect(host)
   connected = True

@@ -25,6 +25,6 @@ Add the following middleware:
 
 ```python
 MIDDLEWARE_CLASSES = (
-   'apianalytics.middleware.DjangoMiddleware',
+  'apianalytics.middleware.DjangoMiddleware',
 )
 ```
