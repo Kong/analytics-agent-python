@@ -90,7 +90,7 @@ class DjangoMiddleware(object):
       },
       'timings': {
         'send': 0,
-        'wait': int(round((datetime.utcnow() - request.startedDateTime).total_seconds())),
+        'wait': int(round((datetime.utcnow() - request.startedDateTime).total_seconds() * 1000)),
         'receive': 0
       }
     })
