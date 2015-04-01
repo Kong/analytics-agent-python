@@ -31,6 +31,10 @@ class Alf(object):
       }
     }
 
+  @property
+  def json(self):
+    return self.to_json()
+
   def addEntry(self, entry):
     self.entries.append(entry)
 

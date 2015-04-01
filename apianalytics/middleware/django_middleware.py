@@ -22,7 +22,6 @@ class DjangoMiddleware(object):
 
     if host is not None:
       Capture.DEFAULT_HOST = host
-  # def headers
 
   def process_request(self, request):
     request.startedDateTime = datetime.utcnow()
@@ -95,7 +94,12 @@ class DjangoMiddleware(object):
       }
     })
 
-    Capture.record(alf.to_json())
+    # import pprint
+    # pprint.pprint(alf.json)
+    # import json
+    # print json.dumps(alf.json, indent=4)
+
+    Capture.record(alf.json)
 
     return response
 
