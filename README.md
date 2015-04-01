@@ -7,24 +7,30 @@ The Python agent for [API Analytics](https://apianalytics.com)
 Requirements
 ------------
 
-This library requires `libzmq` and `libzmq-dev` to be installed.
+This library uses [ZeroMQ](http://zeromq.org/intro:get-the-software). Make sure its installed.
 
 
 Installation
 ------------
 
-Install off PyPI.
+1. Install off PyPI.
 
-```shell
-pip install apianalytics
-```
+    ```shell
+    pip install apianalytics
+    ```
+
+2. Follow the install instructions for your specific framework, below.
+
 
 ### Django
 
-Add the following middleware:
+Add the following middleware and setting:
 
 ```python
 MIDDLEWARE_CLASSES = (
   'apianalytics.middleware.DjangoMiddleware',
 )
+
+# API Analytics
+APIANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN'
 ```
