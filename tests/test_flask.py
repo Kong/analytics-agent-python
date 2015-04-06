@@ -31,10 +31,9 @@ class FlaskMiddewareTest(TestCase):
     return self._middleware
 
   def test_get(self):
-    recv = self.client.get('/get', {'foo': 'bar'})
+    recv = self.client.get('/get?foo=bar', headers={'CONTENT_TYPE': 'text/plain', 'X-Custom': 'custom', 'X_Custom': 'rawr'})
     self.assertIn('Hello', recv.data)
 
-
   def test_post(self):
-    recv = self.client.post('/post')
+    recv = self.client.post('/post', data='post data')
     self.assertIn('Hello', recv.data)

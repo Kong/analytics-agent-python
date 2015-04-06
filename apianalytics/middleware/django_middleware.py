@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-import socket
 import re
+import socket
 
 from datetime import datetime
 from django.conf import settings
@@ -27,6 +27,7 @@ class DjangoMiddleware(object):
     request.startedDateTime = datetime.utcnow()
 
   def request_header_size(self, request):
+    # TODO URL should not contain http:// and needs query string
     # {METHOD} {URL} HTTP/1.1\r\n = 12 extra characters for space between method and url, and ` HTTP/1.1\r\n`
     first_line = len(request.META.get('REQUEST_METHOD')) + len(request.build_absolute_uri()) + 12
 
@@ -42,17 +43,17 @@ class DjangoMiddleware(object):
     first_line = len(str(response.status_code)) + len(response.reason_phrase) + 10
 
     # {KEY}: {VALUE}\n\r = 4 extra characters `: ` and `\n\r`
-    header_fields = sum([(len(header) + len(value) + 4) for (header, value) in response._headers.iteritems()])
+    header_fields = sum([(len(header) + len(value) + 4) for (header, value) in response._headers.items()])
 
     return first_line + header_fields
 
   def process_response(self, request, response):
     requestHeaders = [{'name': re.sub('^HTTP_', '', header), 'value': value} for (header, value) in request.META.items() if header.startswith('HTTP_')]
     requestHeaderSize = self.request_header_size(request)
-    requestQueryString = [{'name': name, 'value': (value[0] if len(value) > 0 else None)} for name, value in parse_qs(request.META.get('QUERY_STRING', '')).iteritems()]
+    requestQueryString = [{'name': name, 'value': (value[0] if len(value) > 0 else None)} for name, value in parse_qs(request.META.get('QUERY_STRING', '')).items()]
     requestContentSize = len(request.body)
 
-    responseHeaders = [{'name': header, 'value': value[-1]} for (header, value) in response._headers.iteritems()]
+    responseHeaders = [{'name': header, 'value': value[-1]} for (header, value) in response._headers.items()]
     responseHeadersSize = self.response_header_size(response)
     responseContentSize = len(response.content)
 
@@ -96,8 +97,8 @@ class DjangoMiddleware(object):
 
     # import pprint
     # pprint.pprint(alf.json)
-    import json
-    print json.dumps(alf.json, indent=2)
+    # import json
+    # print json.dumps(alf.json, indent=2)
 
     Capture.record(alf.json)
 
