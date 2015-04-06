@@ -52,7 +52,7 @@ class DjangoMiddleware(object):
     requestQueryString = [{'name': name, 'value': (value[0] if len(value) > 0 else None)} for name, value in parse_qs(request.META.get('QUERY_STRING', '')).iteritems()]
     requestContentSize = len(request.body)
 
-    responseHeaders = [{'name': header, 'value': value} for (header, value) in response._headers.iteritems()]
+    responseHeaders = [{'name': header, 'value': value[-1]} for (header, value) in response._headers.iteritems()]
     responseHeadersSize = self.response_header_size(response)
     responseContentSize = len(response.content)
 
@@ -60,7 +60,7 @@ class DjangoMiddleware(object):
 
     alf = Alf(self.serviceToken)
     alf.addEntry({
-      'startDateTime': request.startedDateTime.isoformat(),
+      'startedDateTime': request.startedDateTime.isoformat() + 'Z',
       'serverIpAddress': socket.gethostbyname(socket.gethostname()),
       'request': {
         'method': request.method,
@@ -96,8 +96,8 @@ class DjangoMiddleware(object):
 
     # import pprint
     # pprint.pprint(alf.json)
-    # import json
-    # print json.dumps(alf.json, indent=4)
+    import json
+    print json.dumps(alf.json, indent=2)
 
     Capture.record(alf.json)
 

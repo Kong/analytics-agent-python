@@ -8,8 +8,7 @@ Django Framework
 try:
   from django.conf import settings
 
-  from apianalytics.middleware.django_middleware import DjangoMiddleware as _DjangoMiddleware
-  DjangoMiddleware = _DjangoMiddleware
+  from apianalytics.middleware.django_middleware import DjangoMiddleware
 
 except ImportError, e:
   pass
@@ -18,7 +17,12 @@ except ImportError, e:
 '''
 Flask Framework
 '''
-# TODO flask
+try:
+  import flask
+
+  from apianalytics.middleware.wsgi_middleware import WsgiMiddleware as FlaskMiddleware
+except ImportError, e:
+  pass
 
 '''
 Pyramid Framework

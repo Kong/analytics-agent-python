@@ -9,4 +9,5 @@ settings.configure(
   APIANALYTICS_HOST='tcp://127.0.0.1:2200'
 )
 
-from .test_django import *
+# from .test_django import *
+from .test_flask import *
