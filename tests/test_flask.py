@@ -31,9 +31,17 @@ class FlaskMiddewareTest(TestCase):
     return self._middleware
 
   def test_get(self):
-    recv = self.client.get('/get?foo=bar', headers={'CONTENT_TYPE': 'text/plain', 'X-Custom': 'custom', 'X_Custom': 'rawr'})
+    recv = self.client.get('/get?foo=bar', headers={'CONTENT_TYPE': 'text/plain', 'X-Custom': 'custom'})
+    time.sleep(0.01)  # Sleep for 10 ms
+
+    json = zmq_pull_once(host())
+
     self.assertIn('Hello', recv.data)
 
   def test_post(self):
     recv = self.client.post('/post', data='post data')
+    time.sleep(0.01)  # Sleep for 10 ms
+
+    json = zmq_pull_once(host())
+
     self.assertIn('Hello', recv.data)

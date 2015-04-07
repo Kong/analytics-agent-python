@@ -2,6 +2,7 @@ import os
 import re
 import socket
 
+from cStringIO import StringIO
 from datetime import datetime
 from urlparse import parse_qs
 
@@ -58,9 +59,7 @@ class WsgiMiddleware(object):
 
     return first_line + header_fields
 
-  def __call__(self, env, start_response):
-
-    # Wrap start_response function
+  def wrap_start_response(self, env, start_response):
     def wrapped_start_response(status, response_headers, exc_info=None):
       env['apianalytics.responseStatusCode'] = int(status[0:3])
       env['apianalytics.responseReasonPhrase'] = status[4:]
@@ -69,27 +68,29 @@ class WsgiMiddleware(object):
       def wrapped_write(body): write(self.count_response_content_size(env, body))
       return wrapped_write
 
+    return wrapped_start_response
+
+  def __call__(self, env, start_response):
     env['apianalytics.startedDateTime'] = datetime.utcnow()
     env['apianalytics.responseContentSize'] = 0
 
     # Capture response body from iterable
     iterable = None
     try:
-      iterable = self.app(env, wrapped_start_response)
-      for data in iterable:
+      for data in self.app(env, self.wrap_start_response(env, start_response)):
         yield self.count_response_content_size(env, data)
     finally:
       if hasattr(iterable, 'close'):
         iterable.close()
-
-      # import pprint
-      # pprint.pprint(env)
 
       # Construct and send ALF
       requestHeaders = [{'name': self.request_header_name(header), 'value': value} for (header, value) in env.items() if header.startswith('HTTP_')]
       requestHeaderSize = self.request_header_size(env)
       requestQueryString = [{'name': name, 'value': value} for name, value in parse_qs(env.get('QUERY_STRING', '')).items()]
 
+      if not hasattr(env['wsgi.input'], 'seek'):
+        body = StringIO(env['wsgi.input'].read())
+        env['wsgi.input'] = body
       env['wsgi.input'].seek(0, os.SEEK_END)
       requestContentSize = env['wsgi.input'].tell()
 
@@ -134,8 +135,7 @@ class WsgiMiddleware(object):
         }
       alf.addEntry(entry)
 
-      # pprint.pprint(alf.to_json())
+      import json
+      print json.dumps(alf.json, indent=2)
 
-      # import pdb
-      # pdb.set_trace()
-
+      Capture.record(alf.json)

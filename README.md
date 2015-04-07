@@ -44,7 +44,7 @@ from apianalytics.middleware import FlaskMiddleware
 from flask import Flask
 
 app = Flask(__name__)
-app.wsgi_app = FlaskMiddleware(app, 'SERVICE_TOKEN') # Attach middleware
+app.wsgi_app = FlaskMiddleware(app.wsgi_app, 'SERVICE_TOKEN') # Attach middleware
 
 @app.route('/')
 def hello_world():
