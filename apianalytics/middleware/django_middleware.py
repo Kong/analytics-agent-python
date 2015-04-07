@@ -27,9 +27,8 @@ class DjangoMiddleware(object):
     request.startedDateTime = datetime.utcnow()
 
   def request_header_size(self, request):
-    # TODO URL should not contain http:// and needs query string
     # {METHOD} {URL} HTTP/1.1\r\n = 12 extra characters for space between method and url, and ` HTTP/1.1\r\n`
-    first_line = len(request.META.get('REQUEST_METHOD')) + len(request.build_absolute_uri()) + 12
+    first_line = len(request.META.get('REQUEST_METHOD')) + len(request.get_full_path()) + 12
 
     # {KEY}: {VALUE}\n\r = 4 extra characters for `: ` and `\n\r` minus `HTTP_` in the KEY is -1
     header_fields = sum([(len(header) + len(value) - 1) for (header, value) in request.META.items() if header.startswith('HTTP_')])
@@ -56,8 +55,6 @@ class DjangoMiddleware(object):
     responseHeaders = [{'name': header, 'value': value[-1]} for (header, value) in response._headers.items()]
     responseHeadersSize = self.response_header_size(response)
     responseContentSize = len(response.content)
-
-    # TODO Handle HttpResponse and andStreamingHttpResponse
 
     alf = Alf(self.serviceToken)
     alf.addEntry({
@@ -95,8 +92,6 @@ class DjangoMiddleware(object):
       }
     })
 
-    # import pprint
-    # pprint.pprint(alf.json)
     # import json
     # print json.dumps(alf.json, indent=2)
 

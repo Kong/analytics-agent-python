@@ -34,8 +34,8 @@ class WsgiMiddleware(object):
 
   def request_header_size(self, env):
     # {METHOD} {URL} {HTTP_PROTO}\r\n = 4 extra characters for space between method and url, and `\r\n`
-    queryString = (1 if env.get('QUERY_STRING', False) else 0)
-    queryString += len(env.get('QUERY_STRING', ''))
+    queryString = (1 if env.get('QUERY_STRING', False) else 0)  # `?` to start query string if exists
+    queryString += len(env.get('QUERY_STRING', '')) # Rest of query string
 
     first_line = len(env['REQUEST_METHOD']) + len(env['PATH_INFO']) + queryString + len(env['SERVER_PROTOCOL']) + 4
 
