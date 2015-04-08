@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
   name='apianalytics',
   version='1.0.0',
-  description='',
+  description='Python agent for Mashape API Analytics',
   long_description=io.open('README.md', encoding='utf-8').read(),
   author='Kenneth Lee',
   author_email='kennethkl@gmail.com',
@@ -24,7 +24,7 @@ setup(
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-    'Topic :: Software Development :: Libraries :: Python Modules'
+    'Topic :: Software Development :: Libraries :: Python Modules',
     'Topic :: Utilities',
   ]
 )
