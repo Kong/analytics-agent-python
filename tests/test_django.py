@@ -6,7 +6,6 @@ from django.http import HttpRequest, HttpResponse
 
 from apianalytics import capture as Capture
 from apianalytics.middleware import DjangoMiddleware
-
 from tests.helpers import host, zmq_pull_once
 
 requestFactory = RequestFactory()

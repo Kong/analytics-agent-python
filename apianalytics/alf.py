@@ -13,7 +13,7 @@ class Alf(object):
     self.entries = []
 
   def __str__(self):
-    return json.dumps(self.to_json())
+    return json.dumps(self.to_json(), indent=2)
 
   def to_json(self):
     return {

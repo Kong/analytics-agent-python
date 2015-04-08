@@ -1,6 +1,8 @@
 # Make it easier to access middleware with apianalytics.middlware.xxx
 # i.e. from apianalytics.middleware import DjangoMiddleware
+# This is purely for discovery.
 
+from apianalytics.middleware.wsgi_middleware import WsgiMiddleware
 
 '''
 Django Framework
@@ -27,7 +29,12 @@ except ImportError, e:
 '''
 Pyramid Framework
 '''
-# TODO pyramid
+try:
+  import pyramid
+
+  from apianalytics.middleware.wsgi_middleware import WsgiMiddleware as PyramidMiddleware
+except ImportError, e:
+  pass
 
 '''
 Twisted Framework
