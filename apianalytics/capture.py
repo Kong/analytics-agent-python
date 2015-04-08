@@ -16,7 +16,7 @@ def connect(host=None):
   if host is None:
     host = DEFAULT_HOST
 
-  print 'Connecting to %s' % host
+  # print 'Connecting to %s' % host
   socket = context.socket(zmq.PUSH)
   socket.connect(host)
   connected = True
@@ -31,8 +31,11 @@ def record(alf):
   socket.send_json(alf)
 
 
-def disconnect():
+def disconnect(host=None):
   global connected, socket
 
-  socket.disconnect()
+  if host is None:
+    host = DEFAULT_HOST
+
+  socket.disconnect(host)
   connected = False

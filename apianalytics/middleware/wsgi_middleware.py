@@ -10,9 +10,12 @@ from apianalytics import capture as Capture
 from apianalytics.alf import Alf
 
 class WsgiMiddleware(object):
-  def __init__(self, app, serviceToken):
+  def __init__(self, app, serviceToken, host=None):
     self.app = app
     self.serviceToken = serviceToken
+
+    if host is not None:
+      Capture.DEFAULT_HOST = host
 
   def count_response_content_size(self, env, data):
     env['apianalytics.responseContentSize'] += len(data)
@@ -135,7 +138,7 @@ class WsgiMiddleware(object):
         }
       alf.addEntry(entry)
 
-      import json
-      print json.dumps(alf.json, indent=2)
+      # import json
+      # print json.dumps(alf.json, indent=2)
 
       Capture.record(alf.json)

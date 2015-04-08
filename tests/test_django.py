@@ -4,7 +4,9 @@ from unittest import TestCase
 from django.test import RequestFactory
 from django.http import HttpRequest, HttpResponse
 
+from apianalytics import capture as Capture
 from apianalytics.middleware import DjangoMiddleware
+
 from tests.helpers import host, zmq_pull_once
 
 requestFactory = RequestFactory()
@@ -29,6 +31,9 @@ class DjangoMiddewareTest(TestCase):
 
   def setUp(self):
     self._middleware = DjangoMiddleware()
+
+  def tearDown(self):
+    Capture.disconnect()
 
   @property
   def middleware(self):
