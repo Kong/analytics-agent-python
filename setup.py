@@ -1,12 +1,13 @@
 import io
+import os
 
 from setuptools import setup, find_packages
 
 setup(
   name='apianalytics',
-  version='1.0.0',
+  version='1.0.1',
   description='Python agent for Mashape API Analytics',
-  long_description=io.open('README.md', encoding='utf-8').read(),
+  long_description=io.open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r', encoding='utf-8').read(),
   author='Kenneth Lee',
   author_email='kennethkl@gmail.com',
   url='https://github.com/Mashape/analytics-agent-python',
@@ -28,3 +29,6 @@ setup(
     'Topic :: Utilities',
   ]
 )
+
+
+print find_packages(exclude=['tests'])
