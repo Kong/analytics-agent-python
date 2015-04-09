@@ -11,7 +11,7 @@ setup(
   author='Kenneth Lee',
   author_email='kennethkl@gmail.com',
   url='https://github.com/Mashape/analytics-agent-python',
-  download_url = 'https://github.com/Mashape/analytics-agent-python/archive/master.zip',
+  download_url = 'https://github.com/Mashape/analytics-agent-python/archive/v1.0.1.zip',
   license='MIT',
   packages=find_packages(exclude=['tests']),
   zip_safe=False,
