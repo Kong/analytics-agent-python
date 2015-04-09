@@ -1,21 +1,23 @@
-import io
-import os
-
 from setuptools import setup, find_packages
+
+version = '1.0.2'
 
 setup(
   name='apianalytics',
-  version='1.0.1',
+  version=version,
   description='Python agent for Mashape API Analytics',
-  long_description=io.open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r', encoding='utf-8').read(),
   author='Kenneth Lee',
   author_email='kennethkl@gmail.com',
   url='https://github.com/Mashape/analytics-agent-python',
-  download_url = 'https://github.com/Mashape/analytics-agent-python/archive/v1.0.1.zip',
+  download_url = 'https://github.com/Mashape/analytics-agent-python/archive/v{0}.zip'.format(version),
   license='MIT',
   packages=find_packages(exclude=['tests']),
   zip_safe=False,
-  install_requires=[line.strip('\n') for line in io.open('requirements.txt', encoding='utf-8').readlines()],
+  install_requires=[
+    'pytz>=2015.2',
+    'pyzmq>=14.5.0',
+    'six>=1.9.0'
+  ],
   include_package_data=True,
   classifiers=[
     'Environment :: Web Environment',
