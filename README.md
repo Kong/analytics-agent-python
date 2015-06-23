@@ -15,7 +15,7 @@ Installation
 
 1. Install off PyPI.
 
-    ```shell
+    ```sh
     pip install mashape-analytics
     ```
 
