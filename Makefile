@@ -7,7 +7,7 @@ test: install
 	python -m unittest -v tests
 
 clean:
-	rm -rf apianalytics.egg-info build dist
+	rm -rf mashape_analytics.egg-info build dist
 	python setup.py clean
 
 

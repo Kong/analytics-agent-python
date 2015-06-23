@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-version = '1.0.2'
+version = '0.0.1'
 
 setup(
-  name='apianalytics',
+  name='mashape-analytics',
   version=version,
-  description='Python agent for Mashape API Analytics',
+  description='Python Agent for Mashape Analytics',
   author='Mashape',
   author_email='opensource@mashape.com',
   url='https://github.com/Mashape/analytics-agent-python',
@@ -14,9 +14,10 @@ setup(
   packages=find_packages(exclude=['tests']),
   zip_safe=False,
   install_requires=[
-    'pytz>=2015.2',
-    'pyzmq>=14.5.0',
-    'six>=1.9.0'
+    'pytz==2015.2',
+    'pyzmq==14.5.0',
+    'six==1.9.0',
+    'ujson==1.33'
   ],
   include_package_data=True,
   classifiers=[
@@ -32,6 +33,3 @@ setup(
     'Topic :: Utilities',
   ]
 )
-
-
-print find_packages(exclude=['tests'])

@@ -5,20 +5,22 @@ import socket
 from cStringIO import StringIO
 from datetime import datetime
 from urlparse import parse_qs
+from Cookie import SimpleCookie
 
-from apianalytics import capture as Capture
-from apianalytics.alf import Alf
+from mashapeanalytics import capture as Capture
+from mashapeanalytics.alf import Alf
 
 class WsgiMiddleware(object):
-  def __init__(self, app, serviceToken, host=None):
+  def __init__(self, app, serviceToken, environment=None, host=None):
     self.app = app
     self.serviceToken = serviceToken
+    self.environment = environment
 
     if host is not None:
       Capture.DEFAULT_HOST = host
 
   def count_response_content_size(self, env, data):
-    env['apianalytics.responseContentSize'] += len(data)
+    env['MashapeAnalytics.responseContentSize'] += len(data)
 
     return data
 
@@ -50,23 +52,81 @@ class WsgiMiddleware(object):
 
     return first_line + header_fields + last_line
 
+  def request_cookies(self, env):
+    results = []
+    if 'HTTP_COOKIE' in env:
+      cookies = SimpleCookie(env['HTTP_COOKIE'])
+      for name, cookie in cookies.items():
+        value = {
+          'name': name,
+          'value': cookie.value
+        }
+
+        if (cookie['path'] != ''):
+          value['path'] = cookie['path']
+
+        if (cookie['domain'] != ''):
+          value['domain'] = cookie['domain']
+
+        if (cookie['expires'] != ''):
+          value['expires'] = cookie['expires']
+
+        if (cookie['httponly'] != ''):
+          value['httpOnly'] = cookie['httponly']
+
+        if (cookie['secure'] != ''):
+          value['secure'] = cookie['secure']
+
+        results.append(value)
+
+    return results
+
+  def response_cookies(self, env):
+    results = []
+    if 'Set-Cookie' in env['MashapeAnalytics.responseHeaders']:
+      cookies = SimpleCookie(env['MashapeAnalytics.responseHeaders']['Set-Cookie'])
+      for name, cookie in cookies.items():
+        value = {
+          'name': name,
+          'value': cookie.value
+        }
+
+        if (cookie['path'] != ''):
+          value['path'] = cookie['path']
+
+        if (cookie['domain'] != ''):
+          value['domain'] = cookie['domain']
+
+        if (cookie['expires'] != ''):
+          value['expires'] = cookie['expires']
+
+        if (cookie['httponly'] != ''):
+          value['httpOnly'] = cookie['httponly']
+
+        if (cookie['secure'] != ''):
+          value['secure'] = cookie['secure']
+
+        results.append(value)
+
+    return results
+
   def request_header_name(self, header):
     return re.sub('_', '-', re.sub('^HTTP_', '', header))
 
   def response_header_size(self, env):
     # HTTP/1.1 {STATUS} {STATUS_TEXT} = 11 extra spaces
-    first_line = len(str(env['apianalytics.responseStatusCode'])) + len(env['apianalytics.responseReasonPhrase']) + 11
+    first_line = len(str(env['MashapeAnalytics.responseStatusCode'])) + len(env['MashapeAnalytics.responseReasonPhrase']) + 11
 
     # {KEY}: {VALUE}\n\r = 4 extra characters `: ` and `\n\r`
-    header_fields = sum([(len(header) + len(value) + 4) for (header, value) in env['apianalytics.responseHeaders']])
+    header_fields = sum([(len(header) + len(value) + 4) for (header, value) in env['MashapeAnalytics.responseHeaders']])
 
     return first_line + header_fields
 
   def wrap_start_response(self, env, start_response):
     def wrapped_start_response(status, response_headers, exc_info=None):
-      env['apianalytics.responseStatusCode'] = int(status[0:3])
-      env['apianalytics.responseReasonPhrase'] = status[4:]
-      env['apianalytics.responseHeaders'] = response_headers
+      env['MashapeAnalytics.responseStatusCode'] = int(status[0:3])
+      env['MashapeAnalytics.responseReasonPhrase'] = status[4:]
+      env['MashapeAnalytics.responseHeaders'] = response_headers
       write = start_response(status, response_headers, exc_info)
       def wrapped_write(body): write(self.count_response_content_size(env, body))
       return wrapped_write
@@ -74,8 +134,8 @@ class WsgiMiddleware(object):
     return wrapped_start_response
 
   def __call__(self, env, start_response):
-    env['apianalytics.startedDateTime'] = datetime.utcnow()
-    env['apianalytics.responseContentSize'] = 0
+    env['MashapeAnalytics.startedDateTime'] = datetime.utcnow()
+    env['MashapeAnalytics.responseContentSize'] = 0
 
     # Capture response body from iterable
     iterable = None
@@ -90,6 +150,7 @@ class WsgiMiddleware(object):
       requestHeaders = [{'name': self.request_header_name(header), 'value': value} for (header, value) in env.items() if header.startswith('HTTP_')]
       requestHeaderSize = self.request_header_size(env)
       requestQueryString = [{'name': name, 'value': value} for name, value in parse_qs(env.get('QUERY_STRING', '')).items()]
+      requestCookies = self.request_cookies(env)
 
       if not hasattr(env['wsgi.input'], 'seek'):
         body = StringIO(env['wsgi.input'].read())
@@ -97,38 +158,47 @@ class WsgiMiddleware(object):
       env['wsgi.input'].seek(0, os.SEEK_END)
       requestContentSize = env['wsgi.input'].tell()
 
-      responseHeaders = [{'name': header, 'value': value} for (header, value) in env['apianalytics.responseHeaders']]
+      responseHeaders = [{'name': header, 'value': value} for (header, value) in env['MashapeAnalytics.responseHeaders']]
       responseHeadersSize = self.response_header_size(env)
+      responseCookies = self.response_cookies(env)
 
-      alf = Alf(self.serviceToken)
+      alf = Alf(self.serviceToken, self.environment)
       entry = {
-        'startedDateTime': env['apianalytics.startedDateTime'].isoformat() + 'Z', # HACK for apianalytics server to validate date
+        'startedDateTime': env['MashapeAnalytics.startedDateTime'].isoformat() + 'Z', # HACK for MashapeAnalytics server to validate date
         'serverIpAddress': socket.gethostbyname(socket.gethostname()),
+        'time': int(round((datetime.utcnow() - env['MashapeAnalytics.startedDateTime']).total_seconds() * 1000)),
         'request': {
           'method': env['REQUEST_METHOD'],
           'url': self.absolute_uri(env),
           'httpVersion': env['SERVER_PROTOCOL'],
+          'cookies': requestCookies,
           'queryString': requestQueryString,
           'headers': requestHeaders,
           'headersSize': requestHeaderSize,
           'bodySize': requestHeaderSize + requestContentSize
         },
         'response': {
-          'status': env['apianalytics.responseStatusCode'],
-          'statusText': env['apianalytics.responseReasonPhrase'],
+          'status': env['MashapeAnalytics.responseStatusCode'],
+          'statusText': env['MashapeAnalytics.responseReasonPhrase'],
           'httpVersion': 'HTTP/1.1',
+          'cookies': responseCookies,
           'headers': responseHeaders,
           'headersSize': responseHeadersSize,
           'content': {
-            'size': env['apianalytics.responseContentSize'],
-            'mimeType': [header for header in env['apianalytics.responseHeaders'] if header[0] == 'Content-Type'][0][1] or 'application/octet-stream'
+            'size': env['MashapeAnalytics.responseContentSize'],
+            'mimeType': [header for header in env['MashapeAnalytics.responseHeaders'] if header[0] == 'Content-Type'][0][1] or 'application/octet-stream'
           },
-          'bodySize': responseHeadersSize + env['apianalytics.responseContentSize']
+          'bodySize': responseHeadersSize + env['MashapeAnalytics.responseContentSize']
         },
+        'cache': {},
         'timings': {
+          'blocked': -1,
+          'dns': -1,
+          'connect': -1,
           'send': 0,
-          'wait': int(round((datetime.utcnow() - env['apianalytics.startedDateTime']).total_seconds() * 1000)),
-          'receive': 0
+          'wait': int(round((datetime.utcnow() - env['MashapeAnalytics.startedDateTime']).total_seconds() * 1000)),
+          'receive': 0,
+          'ssl': -1
         }
       }
       if env['CONTENT_LENGTH'] != '0':

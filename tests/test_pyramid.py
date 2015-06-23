@@ -5,8 +5,8 @@ from pyramid.config import Configurator
 from pyramid.response import Response
 from werkzeug.test import Client
 
-from apianalytics import capture as Capture
-from apianalytics.middleware import WsgiMiddleware
+from mashapeanalytics import capture as Capture
+from mashapeanalytics.middleware import WsgiMiddleware
 from tests.helpers import host, zmq_pull_once
 
 ##
@@ -31,7 +31,7 @@ def create_app():
 class PyramidMiddewareTest(TestCase):
 
   def setUp(self):
-    self.app = WsgiMiddleware(create_app(), 'SERVICE_TOKEN', host())
+    self.app = WsgiMiddleware(create_app(), 'SERVICE_TOKEN', 'ENVIRONMENT', host())
 
   def tearDown(self):
     Capture.disconnect()
@@ -44,7 +44,7 @@ class PyramidMiddewareTest(TestCase):
 
     self.assertIn('Hello', data)
 
-    alf = zmq_pull_once(host())
+    version, alf = zmq_pull_once(host())
 
     self.assertTrue(alf['har']['log']['entries'][0]['timings']['wait'] >= 10)
 

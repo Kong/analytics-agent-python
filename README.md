@@ -1,7 +1,7 @@
-Python Agent
-============
+Mashape Analytics Python Agent
+===============================
 
-The Python agent for [API Analytics](https://apianalytics.com)
+The Python agent for [Mashape Analytics](https://apianalytics.com)
 
 
 Requirements
@@ -16,10 +16,12 @@ Installation
 1. Install off PyPI.
 
     ```shell
-    pip install apianalytics
+    pip install mashape-analytics
     ```
 
 2. Follow the install instructions for your specific framework, below.
+
+NOTE: Replace the service token and environment with your specific values from [API Analytics](https://apianalytics.com)
 
 
 ### Django
@@ -28,11 +30,12 @@ Add the following middleware and setting in `settings.py`:
 
 ```python
 MIDDLEWARE_CLASSES = (
-  'apianalytics.middleware.DjangoMiddleware',
+  'mashapeanalytics.middleware.DjangoMiddleware',
 )
 
 # API Analytics
-APIANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN'
+ANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN' # Replace with your App Service Token
+ANALYTICS_ENVIRONMENT = 'production' # Replace with your Environment ID
 ```
 
 ### Flask
@@ -40,11 +43,11 @@ APIANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN'
 Add the middleware to `wsgi_app`:
 
 ```python
-from apianalytics.middleware import WsgiMiddleware as ApiAnalytics
+from mashapeanalytics.middleware import WsgiMiddleware as MashapeAnalytics
 from flask import Flask
 
 app = Flask(__name__)
-app.wsgi_app = ApiAnalytics(app.wsgi_app, 'SERVICE_TOKEN') # Attach middleware
+app.wsgi_app = MashapeAnalytics(app.wsgi_app, 'SERVICE_TOKEN', 'production') # Attach middleware with environment, `production`
 
 @app.route('/')
 def hello_world():
@@ -61,7 +64,7 @@ This example starts from [Pyramid's simpliest application](http://docs.pylonspro
 Wrap the middleware to `app`:
 
 ```python
-from apianalytics.middleware import WsgiMiddleware as ApiAnalytics
+from mashapeanalytics.middleware import WsgiMiddleware as MashapeAnalytics
 from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
 from pyramid.response import Response
@@ -76,7 +79,7 @@ if __name__ == '__main__':
   config.add_view(hello_world, route_name='hello')
   app = config.make_wsgi_app()
 
-  app = ApiAnalytics(app, 'SERVICE_TOKEN') # Attach middleware
+  app = MashapeAnalytics(app, 'SERVICE_TOKEN', 'production') # Attach middleware with environment, `production`
 
   server = make_server('0.0.0.0', 8080, app)
   server.serve_forever()

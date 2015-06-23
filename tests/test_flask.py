@@ -3,8 +3,8 @@ import time
 from unittest import TestCase
 from flask import Flask
 
-from apianalytics import capture as Capture
-from apianalytics.middleware import FlaskMiddleware
+from mashapeanalytics import capture as Capture
+from mashapeanalytics.middleware import FlaskMiddleware
 from tests.helpers import host, zmq_pull_once
 
 ##
@@ -32,7 +32,7 @@ class FlaskMiddewareTest(TestCase):
 
   def setUp(self):
     self.app = create_app()
-    self.app.wsgi_app = FlaskMiddleware(self.app.wsgi_app, 'SERVICE-TOKEN', host())
+    self.app.wsgi_app = FlaskMiddleware(self.app.wsgi_app, 'SERVICE-TOKEN', 'ENVIRONMENT', host())
 
     self.client = self.app.test_client()
 
@@ -50,7 +50,7 @@ class FlaskMiddewareTest(TestCase):
     self.assertIn('200 OK', recv.status)
     self.assertIn('Hello', recv.data)
 
-    json = zmq_pull_once(host())
+    version, json = zmq_pull_once(host())
 
     self.assertTrue(json['har']['log']['entries'][0]['timings']['wait'] >= 10)
 
@@ -60,6 +60,6 @@ class FlaskMiddewareTest(TestCase):
     self.assertIn('200 OK', recv.status)
     self.assertIn('Hello', recv.data)
 
-    json = zmq_pull_once(host())
+    version, json = zmq_pull_once(host())
 
     self.assertTrue(json['har']['log']['entries'][0]['timings']['wait'] >= 10)

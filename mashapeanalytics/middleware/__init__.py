@@ -1,8 +1,8 @@
-# Make it easier to access middleware with apianalytics.middlware.xxx
-# i.e. from apianalytics.middleware import DjangoMiddleware
+# Make it easier to access middleware with mashapeanalytics.middlware.xxx
+# i.e. from mashapeanalytics.middleware import DjangoMiddleware
 # This is purely for discovery.
 
-from apianalytics.middleware.wsgi_middleware import WsgiMiddleware
+from mashapeanalytics.middleware.wsgi_middleware import WsgiMiddleware
 
 '''
 Django Framework
@@ -10,8 +10,7 @@ Django Framework
 try:
   from django.conf import settings
 
-  from apianalytics.middleware.django_middleware import DjangoMiddleware
-
+  from mashapeanalytics.middleware.django_middleware import DjangoMiddleware
 except ImportError, e:
   pass
 
@@ -22,7 +21,7 @@ Flask Framework
 try:
   import flask
 
-  from apianalytics.middleware.wsgi_middleware import WsgiMiddleware as FlaskMiddleware
+  from mashapeanalytics.middleware.wsgi_middleware import WsgiMiddleware as FlaskMiddleware
 except ImportError, e:
   pass
 
@@ -32,7 +31,7 @@ Pyramid Framework
 try:
   import pyramid
 
-  from apianalytics.middleware.wsgi_middleware import WsgiMiddleware as PyramidMiddleware
+  from mashapeanalytics.middleware.wsgi_middleware import WsgiMiddleware as PyramidMiddleware
 except ImportError, e:
   pass
 

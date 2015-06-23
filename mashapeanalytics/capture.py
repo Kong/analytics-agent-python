@@ -1,6 +1,7 @@
 import zmq
+import ujson
 
-DEFAULT_HOST='tcp://socket.apianalytics.com:5000'
+DEFAULT_HOST='tcp://socket.analytics.mashape.com:5500'
 
 connected = False
 context = zmq.Context()
@@ -28,7 +29,7 @@ def record(alf):
   if not connected:
     connect()
 
-  socket.send_json(alf)
+  socket.send('alf_1.0.0 ' + ujson.encode(alf))
 
 
 def disconnect(host=None):

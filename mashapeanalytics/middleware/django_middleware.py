@@ -7,18 +7,19 @@ from datetime import datetime
 from django.conf import settings
 from urlparse import parse_qs
 
-from apianalytics import capture as Capture
-from apianalytics.alf import Alf
+from mashapeanalytics import capture as Capture
+from mashapeanalytics.alf import Alf
 
 
 class DjangoMiddleware(object):
 
   def __init__(self):
-    self.serviceToken = getattr(settings, 'APIANALYTICS_SERVICE_TOKEN', None)
-    host = getattr(settings, 'APIANALYTICS_HOST', None)
+    self.serviceToken = getattr(settings, 'ANALYTICS_SERVICE_TOKEN', None)
+    self.environment = getattr(settings, 'ANALYTICS_ENVIRONMENT', None)
+    host = getattr(settings, 'ANALYTICS_HOST', None)
 
     if self.serviceToken is None:
-      raise AttributeError("'APIANALYTICS_SERVICE_TOKEN' setting is not found.")
+      raise AttributeError("'ANALYTICS_SERVICE_TOKEN' setting is not found.")
 
     if host is not None:
       Capture.DEFAULT_HOST = host
@@ -56,7 +57,7 @@ class DjangoMiddleware(object):
     responseHeadersSize = self.response_header_size(response)
     responseContentSize = len(response.content)
 
-    alf = Alf(self.serviceToken)
+    alf = Alf(self.serviceToken, self.environment)
     alf.addEntry({
       'startedDateTime': request.startedDateTime.isoformat() + 'Z',
       'serverIpAddress': socket.gethostbyname(socket.gethostname()),

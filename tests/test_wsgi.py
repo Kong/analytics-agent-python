@@ -7,8 +7,8 @@ from urllib2 import urlopen
 from werkzeug.test import Client
 from wsgiref.simple_server import make_server
 
-from apianalytics import capture as Capture
-from apianalytics.middleware import WsgiMiddleware
+from mashapeanalytics import capture as Capture
+from mashapeanalytics.middleware import WsgiMiddleware
 from tests.helpers import host, zmq_pull_once
 
 ##
@@ -28,7 +28,7 @@ def create_app():
 class WsgiMiddewareTest(TestCase):
 
   def setUp(self):
-    self.app = WsgiMiddleware(create_app(), 'SERVICE-TOKEN', host())
+    self.app = WsgiMiddleware(create_app(), 'SERVICE-TOKEN', 'ENVIRONMENT', host())
 
   def tearDown(self):
     Capture.disconnect()
@@ -44,10 +44,12 @@ class WsgiMiddewareTest(TestCase):
 
     self.assertIn('Hello', data)
 
-    alf = zmq_pull_once(host())
+    version, alf = zmq_pull_once(host())
+
+    self.assertEqual(version, 'alf_1.0.0')
 
     self.assertEqual(alf['serviceToken'], 'SERVICE-TOKEN')
-    self.assertEqual(alf['har']['log']['creator']['name'], 'apianalytics-python')
+    self.assertEqual(alf['har']['log']['creator']['name'], 'mashape-analytics-agent-python')
     self.assertEqual(alf['har']['log']['entries'][0]['request']['method'], 'GET')
     self.assertEqual(alf['har']['log']['entries'][0]['request']['url'], 'http://localhost/')
     self.assertEqual(alf['har']['log']['entries'][0]['response']['status'], 200)

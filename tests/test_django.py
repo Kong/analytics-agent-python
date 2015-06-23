@@ -4,8 +4,8 @@ from unittest import TestCase
 from django.test import RequestFactory
 from django.http import HttpRequest, HttpResponse
 
-from apianalytics import capture as Capture
-from apianalytics.middleware import DjangoMiddleware
+from mashapeanalytics import capture as Capture
+from mashapeanalytics.middleware import DjangoMiddleware
 from tests.helpers import host, zmq_pull_once
 
 requestFactory = RequestFactory()
@@ -48,8 +48,9 @@ class DjangoMiddewareTest(TestCase):
     time.sleep(0.01)  # Sleep for 10 ms
     response = self.middleware.process_response(req, res)
 
-    json = zmq_pull_once(host())
+    version, json = zmq_pull_once(host())
 
+    self.assertEqual(version, 'alf_1.0.0')
     self.assertIn('text/html', response['Content-Type'])
     self.assertTrue(json['har']['log']['entries'][0]['timings']['wait'] >= 10)
 
@@ -63,6 +64,8 @@ class DjangoMiddewareTest(TestCase):
     time.sleep(0.01)  # Sleep for 10 ms
     response = self.middleware.process_response(req, res)
 
-    json = zmq_pull_once(host())
+    version, json = zmq_pull_once(host())
 
+    self.assertEqual(version, 'alf_1.0.0')
     self.assertIn('json', response['Content-Type'])
+
