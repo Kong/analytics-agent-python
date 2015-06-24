@@ -98,9 +98,13 @@ class DjangoMiddleware(object):
       },
       'cache': {},
       'timings': {
+        'blocked': -1,
+        'dns': -1,
+        'connect': -1,
         'send': 0,
         'wait': int(round((datetime.utcnow() - request.startedDateTime).total_seconds() * 1000)),
-        'receive': 0
+        'receive': 0,
+        'ssl': -1
       }
     })
 

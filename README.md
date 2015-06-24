@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- [ZeroMQ](http://zeromq.org/intro:get-the-software).
+- [ZeroMQ](http://zeromq.org/intro:get-the-software)
 
 ## Installation
 
