@@ -14,12 +14,12 @@ from mashapeanalytics.alf import Alf
 class DjangoMiddleware(object):
 
   def __init__(self):
-    self.serviceToken = getattr(settings, 'ANALYTICS_SERVICE_TOKEN', None)
-    self.environment = getattr(settings, 'ANALYTICS_ENVIRONMENT', None)
-    host = getattr(settings, 'ANALYTICS_HOST', None)
+    self.serviceToken = getattr(settings, 'MASHAPE_ANALYTICS_SERVICE_TOKEN', None)
+    self.environment = getattr(settings, 'MASHAPE_ANALYTICS_ENVIRONMENT', None)
+    host = getattr(settings, 'MASHAPE_ANALYTICS_HOST', None)
 
     if self.serviceToken is None:
-      raise AttributeError("'ANALYTICS_SERVICE_TOKEN' setting is not found.")
+      raise AttributeError("'MASHAPE_ANALYTICS_SERVICE_TOKEN' setting is not found.")
 
     if host is not None:
       Capture.DEFAULT_HOST = host
@@ -37,6 +37,12 @@ class DjangoMiddleware(object):
     last_line = 2 # /r/n
 
     return first_line + header_fields + last_line
+
+  def client_address(self, request):
+    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', None))
+
+    if ip:
+      return ip.split(',')[0]
 
   def response_header_size(self, response):
     # HTTP/1.1 {STATUS} {STATUS_TEXT} = 10 extra characters
@@ -57,14 +63,16 @@ class DjangoMiddleware(object):
     responseHeadersSize = self.response_header_size(response)
     responseContentSize = len(response.content)
 
-    alf = Alf(self.serviceToken, self.environment)
+    alf = Alf(self.serviceToken, self.environment, self.client_address(request))
     alf.addEntry({
       'startedDateTime': request.startedDateTime.isoformat() + 'Z',
       'serverIpAddress': socket.gethostbyname(socket.gethostname()),
+      'time': int(round((datetime.utcnow() - request.startedDateTime).total_seconds() * 1000)),
       'request': {
         'method': request.method,
         'url': request.build_absolute_uri(),
         'httpVersion': 'HTTP/1.1',
+        'cookies': [],
         'queryString': requestQueryString,
         'headers': requestHeaders,
         'headersSize': requestHeaderSize,
@@ -78,14 +86,17 @@ class DjangoMiddleware(object):
         'status': response.status_code,
         'statusText': response.reason_phrase,
         'httpVersion': 'HTTP/1.1',
+        'cookies': [],
         'headers': responseHeaders,
         'headersSize': responseHeadersSize,
         'content': {
           'size': responseContentSize,
           'mimeType': response._headers.get('content-type', (None, 'application/octet-stream'))[-1]
         },
-        'bodySize': responseHeadersSize + responseContentSize
+        'bodySize': responseHeadersSize + responseContentSize,
+        'redirectURL': response._headers.get('location', ('location', ''))[-1]
       },
+      'cache': {},
       'timings': {
         'send': 0,
         'wait': int(round((datetime.utcnow() - request.startedDateTime).total_seconds() * 1000)),

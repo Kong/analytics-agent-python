@@ -10,14 +10,15 @@ class Alf(object):
   def __init__(self, serviceToken, environment, clientIp = None):
     self.serviceToken = serviceToken
     self.environment = environment
+    self.clientIp = clientIp
     self.entries = []
 
   def __str__(self):
     return json.dumps(self.to_json(), indent=2)
 
   def to_json(self):
-
-    return {
+    alf = {
+      'version': '1.0.0',
       'serviceToken': self.serviceToken,
       'environment': self.environment,
 
@@ -32,6 +33,11 @@ class Alf(object):
         }
       }
     }
+
+    if (self.clientIp):
+      alf['clientIpAddress'] = self.clientIp
+
+    return alf
 
   @property
   def json(self):

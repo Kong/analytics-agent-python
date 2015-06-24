@@ -52,64 +52,6 @@ class WsgiMiddleware(object):
 
     return first_line + header_fields + last_line
 
-  def request_cookies(self, env):
-    results = []
-    if 'HTTP_COOKIE' in env:
-      cookies = SimpleCookie(env['HTTP_COOKIE'])
-      for name, cookie in cookies.items():
-        value = {
-          'name': name,
-          'value': cookie.value
-        }
-
-        if (cookie['path'] != ''):
-          value['path'] = cookie['path']
-
-        if (cookie['domain'] != ''):
-          value['domain'] = cookie['domain']
-
-        if (cookie['expires'] != ''):
-          value['expires'] = cookie['expires']
-
-        if (cookie['httponly'] != ''):
-          value['httpOnly'] = cookie['httponly']
-
-        if (cookie['secure'] != ''):
-          value['secure'] = cookie['secure']
-
-        results.append(value)
-
-    return results
-
-  def response_cookies(self, env):
-    results = []
-    if 'Set-Cookie' in env['MashapeAnalytics.responseHeaders']:
-      cookies = SimpleCookie(env['MashapeAnalytics.responseHeaders']['Set-Cookie'])
-      for name, cookie in cookies.items():
-        value = {
-          'name': name,
-          'value': cookie.value
-        }
-
-        if (cookie['path'] != ''):
-          value['path'] = cookie['path']
-
-        if (cookie['domain'] != ''):
-          value['domain'] = cookie['domain']
-
-        if (cookie['expires'] != ''):
-          value['expires'] = cookie['expires']
-
-        if (cookie['httponly'] != ''):
-          value['httpOnly'] = cookie['httponly']
-
-        if (cookie['secure'] != ''):
-          value['secure'] = cookie['secure']
-
-        results.append(value)
-
-    return results
-
   def request_header_name(self, header):
     return re.sub('_', '-', re.sub('^HTTP_', '', header))
 
@@ -121,6 +63,12 @@ class WsgiMiddleware(object):
     header_fields = sum([(len(header) + len(value) + 4) for (header, value) in env['MashapeAnalytics.responseHeaders']])
 
     return first_line + header_fields
+
+  def client_address(self, env):
+    ip = env.get('HTTP_X_FORWARDED_FOR', env.get('REMOTE_ADDR', None))
+
+    if ip:
+      return ip.split(',')[0]
 
   def wrap_start_response(self, env, start_response):
     def wrapped_start_response(status, response_headers, exc_info=None):
@@ -149,8 +97,7 @@ class WsgiMiddleware(object):
       # Construct and send ALF
       requestHeaders = [{'name': self.request_header_name(header), 'value': value} for (header, value) in env.items() if header.startswith('HTTP_')]
       requestHeaderSize = self.request_header_size(env)
-      requestQueryString = [{'name': name, 'value': value} for name, value in parse_qs(env.get('QUERY_STRING', '')).items()]
-      requestCookies = self.request_cookies(env)
+      requestQueryString = [{'name': name, 'value': value[0]} for name, value in parse_qs(env.get('QUERY_STRING', '')).items()]
 
       if not hasattr(env['wsgi.input'], 'seek'):
         body = StringIO(env['wsgi.input'].read())
@@ -160,9 +107,8 @@ class WsgiMiddleware(object):
 
       responseHeaders = [{'name': header, 'value': value} for (header, value) in env['MashapeAnalytics.responseHeaders']]
       responseHeadersSize = self.response_header_size(env)
-      responseCookies = self.response_cookies(env)
 
-      alf = Alf(self.serviceToken, self.environment)
+      alf = Alf(self.serviceToken, self.environment, self.client_address(env))
       entry = {
         'startedDateTime': env['MashapeAnalytics.startedDateTime'].isoformat() + 'Z', # HACK for MashapeAnalytics server to validate date
         'serverIpAddress': socket.gethostbyname(socket.gethostname()),
@@ -171,7 +117,7 @@ class WsgiMiddleware(object):
           'method': env['REQUEST_METHOD'],
           'url': self.absolute_uri(env),
           'httpVersion': env['SERVER_PROTOCOL'],
-          'cookies': requestCookies,
+          'cookies': [],
           'queryString': requestQueryString,
           'headers': requestHeaders,
           'headersSize': requestHeaderSize,
@@ -181,14 +127,15 @@ class WsgiMiddleware(object):
           'status': env['MashapeAnalytics.responseStatusCode'],
           'statusText': env['MashapeAnalytics.responseReasonPhrase'],
           'httpVersion': 'HTTP/1.1',
-          'cookies': responseCookies,
+          'cookies': [],
           'headers': responseHeaders,
           'headersSize': responseHeadersSize,
           'content': {
             'size': env['MashapeAnalytics.responseContentSize'],
             'mimeType': [header for header in env['MashapeAnalytics.responseHeaders'] if header[0] == 'Content-Type'][0][1] or 'application/octet-stream'
           },
-          'bodySize': responseHeadersSize + env['MashapeAnalytics.responseContentSize']
+          'bodySize': responseHeadersSize + env['MashapeAnalytics.responseContentSize'],
+          'redirectURL': next((value for (header, value) in env['MashapeAnalytics.responseHeaders'] if header == 'Location'), '')
         },
         'cache': {},
         'timings': {
