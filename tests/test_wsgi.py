@@ -3,7 +3,7 @@ import time
 from unittest import TestCase
 
 from multiprocessing import Process
-from urllib2 import urlopen
+from six.moves.urllib.request import urlopen
 from werkzeug.test import Client
 from wsgiref.simple_server import make_server
 

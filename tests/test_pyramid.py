@@ -31,6 +31,9 @@ def create_app():
 class PyramidMiddewareTest(TestCase):
 
   def setUp(self):
+    # self.app = create_app()
+    # self.app.wsgi_app = WsgiMiddleware(self.app.wsgi_app, 'SERVICE_TOKEN', 'ENVIRONMENT', host())
+
     self.app = WsgiMiddleware(create_app(), 'SERVICE_TOKEN', 'ENVIRONMENT', host())
 
   def tearDown(self):
@@ -39,10 +42,9 @@ class PyramidMiddewareTest(TestCase):
   def test_get(self):
     client = Client(self.app)
     data, status, headers = client.open()
-    data = ''.join(data)
+    data = (b'').join(data)
 
-
-    self.assertIn('Hello', data)
+    self.assertIn('Hello', str(data))
 
     version, alf = zmq_pull_once(host())
 

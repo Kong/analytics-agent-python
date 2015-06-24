@@ -5,7 +5,7 @@ import socket
 
 from datetime import datetime
 from django.conf import settings
-from urlparse import parse_qs
+from six.moves.urllib.parse import parse_qs
 
 from mashapeanalytics import capture as Capture
 from mashapeanalytics.alf import Alf

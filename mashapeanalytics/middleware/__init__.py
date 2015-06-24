@@ -10,8 +10,12 @@ Django Framework
 try:
   from django.conf import settings
 
+  print('DjangoMiddleware')
   from mashapeanalytics.middleware.django_middleware import DjangoMiddleware
+
+  print (DjangoMiddleware)
 except ImportError as e:
+  print(e)
   pass
 
 

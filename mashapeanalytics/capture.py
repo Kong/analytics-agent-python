@@ -29,7 +29,7 @@ def record(alf):
   if not connected:
     connect()
 
-  socket.send('alf_1.0.0 ' + ujson.encode(alf))
+  socket.send_string('alf_1.0.0 ' + ujson.encode(alf))
 
 
 def disconnect(host=None):

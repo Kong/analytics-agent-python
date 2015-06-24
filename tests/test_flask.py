@@ -48,7 +48,7 @@ class FlaskMiddewareTest(TestCase):
     recv = self.client.get('/get?foo=bar', headers={'CONTENT_TYPE': 'text/plain', 'X-Custom': 'custom'})
 
     self.assertIn('200 OK', recv.status)
-    self.assertIn('Hello', recv.data)
+    self.assertIn('Hello', str(recv.data))
 
     version, json = zmq_pull_once(host())
 
@@ -58,7 +58,7 @@ class FlaskMiddewareTest(TestCase):
     recv = self.client.post('/post', data='post data')
 
     self.assertIn('200 OK', recv.status)
-    self.assertIn('Hello', recv.data)
+    self.assertIn('Hello', str(recv.data))
 
     version, json = zmq_pull_once(host())
 

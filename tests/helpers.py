@@ -9,7 +9,7 @@ def zmq_pull_once(host):
   socket = Capture.context.socket(zmq.PULL)
   socket.bind(host)
 
-  data = socket.recv()
+  data = socket.recv_string()
   version, msg = data.split(' ', 1)
   return version, ujson.decode(msg)
 
