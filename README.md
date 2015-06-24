@@ -74,3 +74,9 @@ if __name__ == '__main__':
   server = make_server('0.0.0.0', 8080, app)
   server.serve_forever()
 ```
+
+## Copyright and license
+
+Copyright Mashape Inc, 2015.
+
+Licensed under [the MIT License](https://github.com/mashape/analytics-agent-java/blob/master/LICENSE)
