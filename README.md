@@ -79,4 +79,4 @@ if __name__ == '__main__':
 
 Copyright Mashape Inc, 2015.
 
-Licensed under [the MIT License](https://github.com/mashape/analytics-agent-java/blob/master/LICENSE)
+Licensed under [the MIT License](https://github.com/mashape/analytics-agent-python/blob/master/LICENSE)
