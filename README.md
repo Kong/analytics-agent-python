@@ -25,8 +25,8 @@ MIDDLEWARE_CLASSES = (
 
 # Mashape Analytics
 MASHAPE_ANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN' # Replace with your App Service Token
-MASHAPE_ANALYTICS_ENVIRONMENT = 'production' # Replace with your Environment ID
-
+MASHAPE_ANALYTICS_ENVIRONMENT = 'production' # Leave blank for default, or replace with your Environment ID
+```
 ### Flask
 
 Add the middleware to `wsgi_app`:
