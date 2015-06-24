@@ -11,7 +11,7 @@ try:
   from django.conf import settings
 
   from mashapeanalytics.middleware.django_middleware import DjangoMiddleware
-except ImportError, e:
+except ImportError as e:
   pass
 
 
@@ -22,7 +22,7 @@ try:
   import flask
 
   from mashapeanalytics.middleware.wsgi_middleware import WsgiMiddleware as FlaskMiddleware
-except ImportError, e:
+except ImportError as e:
   pass
 
 '''
@@ -32,7 +32,7 @@ try:
   import pyramid
 
   from mashapeanalytics.middleware.wsgi_middleware import WsgiMiddleware as PyramidMiddleware
-except ImportError, e:
+except ImportError as e:
   pass
 
 '''

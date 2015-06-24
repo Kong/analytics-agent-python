@@ -14,4 +14,4 @@ def zmq_pull_once(host):
   return version, ujson.decode(msg)
 
 def host():
-  return 'tcp://127.0.0.1:2200'
+  return 'tcp://127.0.0.1:56000'
