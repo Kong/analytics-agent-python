@@ -2,10 +2,10 @@ import os
 import re
 import socket
 
-from cStringIO import StringIO
+from six.moves import cStringIO
 from datetime import datetime
-from urlparse import parse_qs
-from Cookie import SimpleCookie
+from six.moves.urllib.parse import parse_qs
+from six.moves.http_cookies import SimpleCookie
 
 from mashapeanalytics import capture as Capture
 from mashapeanalytics.alf import Alf
