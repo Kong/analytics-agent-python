@@ -1,28 +1,18 @@
-Mashape Analytics Python Agent
-===============================
+# Mashape Analytics Python Agent
 
-The Python agent for [Mashape Analytics](https://apianalytics.com)
+> for more information on Mashape Analytics, please visit [apianalytics.com](https://www.apianalytics.com)
 
+## Requirements
 
-Requirements
-------------
+- [ZeroMQ](http://zeromq.org/intro:get-the-software).
 
-This library uses [ZeroMQ](http://zeromq.org/intro:get-the-software). Make sure its installed.
+## Installation
 
+```sh
+pip install mashape-analytics
+```
 
-Installation
-------------
-
-1. Install off PyPI.
-
-    ```shell
-    pip install mashape-analytics
-    ```
-
-2. Follow the install instructions for your specific framework, below.
-
-NOTE: Replace the service token and environment with your specific values from [API Analytics](https://apianalytics.com)
-
+## Usage
 
 ### Django
 
@@ -33,11 +23,9 @@ MIDDLEWARE_CLASSES = (
   'mashapeanalytics.middleware.DjangoMiddleware',
 )
 
-# API Analytics
+# Mashape Analytics
 MASHAPE_ANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN' # Replace with your App Service Token
 MASHAPE_ANALYTICS_ENVIRONMENT = 'production' # Replace with your Environment ID
-```
-
 
 ### Flask
 
@@ -60,7 +48,7 @@ if __name__ == '__main__':
 
 ### Pyramid
 
-This example starts from [Pyramid's simpliest application](http://docs.pylonsproject.org/docs/pyramid/en/latest/index.html).
+This example starts from [Pyramid's simplest application](http://docs.pylonsproject.org/docs/pyramid/en/latest/index.html).
 
 Wrap the middleware to `app`:
 
@@ -85,3 +73,9 @@ if __name__ == '__main__':
   server = make_server('0.0.0.0', 8080, app)
   server.serve_forever()
 ```
+
+## Copyright and license
+
+Copyright Mashape Inc, 2015.
+
+Licensed under [the MIT License](https://github.com/mashape/analytics-agent-python/blob/master/LICENSE)
