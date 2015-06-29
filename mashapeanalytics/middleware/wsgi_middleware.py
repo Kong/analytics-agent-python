@@ -100,7 +100,7 @@ class WsgiMiddleware(object):
       requestQueryString = [{'name': name, 'value': value[0]} for name, value in parse_qs(env.get('QUERY_STRING', '')).items()]
 
       if not hasattr(env['wsgi.input'], 'seek'):
-        body = StringIO(env['wsgi.input'].read())
+        body = cStringIO(env['wsgi.input'].read())
         env['wsgi.input'] = body
       env['wsgi.input'].seek(0, os.SEEK_END)
       requestContentSize = env['wsgi.input'].tell()

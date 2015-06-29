@@ -25,7 +25,10 @@ class DjangoMiddleware(object):
       Capture.DEFAULT_HOST = host
 
   def process_request(self, request):
-    request.startedDateTime = datetime.utcnow()
+    request.META['MASHAPE_ANALYTICS.STARTED_DATETIME'] = datetime.utcnow()
+    # import pdb;
+    # pdb.set_trace()
+    # print 'CAPTURE REQUEST: ', request.startedDateTime
 
   def request_header_size(self, request):
     # {METHOD} {URL} HTTP/1.1\r\n = 12 extra characters for space between method and url, and ` HTTP/1.1\r\n`
@@ -54,6 +57,8 @@ class DjangoMiddleware(object):
     return first_line + header_fields
 
   def process_response(self, request, response):
+    startedDateTime = request.META.get('MASHAPE_ANALYTICS.STARTED_DATETIME', datetime.utcnow())
+
     requestHeaders = [{'name': re.sub('^HTTP_', '', header), 'value': value} for (header, value) in request.META.items() if header.startswith('HTTP_')]
     requestHeaderSize = self.request_header_size(request)
     requestQueryString = [{'name': name, 'value': (value[0] if len(value) > 0 else None)} for name, value in parse_qs(request.META.get('QUERY_STRING', '')).items()]
@@ -65,9 +70,9 @@ class DjangoMiddleware(object):
 
     alf = Alf(self.serviceToken, self.environment, self.client_address(request))
     alf.addEntry({
-      'startedDateTime': request.startedDateTime.isoformat() + 'Z',
+      'startedDateTime': startedDateTime.isoformat() + 'Z',
       'serverIpAddress': socket.gethostbyname(socket.gethostname()),
-      'time': int(round((datetime.utcnow() - request.startedDateTime).total_seconds() * 1000)),
+      'time': int(round((datetime.utcnow() - startedDateTime).total_seconds() * 1000)),
       'request': {
         'method': request.method,
         'url': request.build_absolute_uri(),
@@ -102,7 +107,7 @@ class DjangoMiddleware(object):
         'dns': -1,
         'connect': -1,
         'send': 0,
-        'wait': int(round((datetime.utcnow() - request.startedDateTime).total_seconds() * 1000)),
+        'wait': int(round((datetime.utcnow() - startedDateTime).total_seconds() * 1000)),
         'receive': 0,
         'ssl': -1
       }
