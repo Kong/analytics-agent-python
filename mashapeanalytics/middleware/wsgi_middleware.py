@@ -111,7 +111,7 @@ class WsgiMiddleware(object):
       alf = Alf(self.serviceToken, self.environment, self.client_address(env))
       entry = {
         'startedDateTime': env['MashapeAnalytics.startedDateTime'].isoformat() + 'Z', # HACK for MashapeAnalytics server to validate date
-        'serverIpAddress': socket.gethostbyname(socket.gethostname()),
+        'serverIPAddress': socket.gethostbyname(socket.gethostname()),
         'time': int(round((datetime.utcnow() - env['MashapeAnalytics.startedDateTime']).total_seconds() * 1000)),
         'request': {
           'method': env['REQUEST_METHOD'],

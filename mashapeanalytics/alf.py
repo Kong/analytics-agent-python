@@ -35,7 +35,7 @@ class Alf(object):
     }
 
     if (self.clientIp):
-      alf['clientIpAddress'] = self.clientIp
+      alf['clientIPAddress'] = self.clientIp
 
     return alf
 
@@ -45,4 +45,3 @@ class Alf(object):
 
   def addEntry(self, entry):
     self.entries.append(entry)
-
