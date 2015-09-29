@@ -7,7 +7,6 @@ connected = False
 context = zmq.Context()
 socket = None
 
-
 def connect(host=None):
   global DEFAULT_HOST, connected, context, socket
 

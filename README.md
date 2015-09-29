@@ -1,6 +1,6 @@
-# Mashape Analytics Python Agent
+# Mashape Galileo Python Agent
 
-> for more information on Mashape Analytics, please visit [apianalytics.com](https://www.apianalytics.com)
+> for more information on Mashape Galileo, please visit [apianalytics.com](https://www.apianalytics.com)
 
 ## Requirements
 
@@ -9,7 +9,7 @@
 ## Installation
 
 ```sh
-pip install mashape-analytics
+pip install galileo-analytics
 ```
 
 ## Usage
@@ -20,19 +20,19 @@ Add the following middleware and setting in `settings.py`:
 
 ```python
 MIDDLEWARE_CLASSES = (
-  'mashapeanalytics.middleware.DjangoMiddleware',
+  'galileoanalytics.middleware.DjangoMiddleware',
 )
 
-# Mashape Analytics
-MASHAPE_ANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN' # Replace with your App Service Token
-MASHAPE_ANALYTICS_ENVIRONMENT = 'production' # Leave blank for default, or replace with your Environment ID
+# Galileo Analytics
+GALILEO_ANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN' # Replace with your App Service Token
+GALILEO_ANALYTICS_ENVIRONMENT = 'production' # Leave blank for default, or replace with your Environment ID
 ```
 ### Flask
 
 Add the middleware to `wsgi_app`:
 
 ```python
-from mashapeanalytics.middleware import FlaskMiddleware as MashapeAnalytics
+from galileoanalytics.middleware import FlaskMiddleware as MashapeAnalytics
 from flask import Flask
 
 app = Flask(__name__)
@@ -53,7 +53,7 @@ This example starts from [Pyramid's simplest application](http://docs.pylonsproj
 Wrap the middleware to `app`:
 
 ```python
-from mashapeanalytics.middleware import WsgiMiddleware as MashapeAnalytics
+from galileoanalytics.middleware import WsgiMiddleware as MashapeAnalytics
 from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
 from pyramid.response import Response

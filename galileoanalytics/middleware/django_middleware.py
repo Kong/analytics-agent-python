@@ -7,8 +7,8 @@ from datetime import datetime
 from django.conf import settings
 from six.moves.urllib.parse import parse_qs
 
-from mashapeanalytics import capture as Capture
-from mashapeanalytics.alf import Alf
+from galileoanalytics import capture as Capture
+from galileoanalytics.alf import Alf
 
 
 class DjangoMiddleware(object):
@@ -119,4 +119,3 @@ class DjangoMiddleware(object):
     Capture.record(alf.json)
 
     return response
-

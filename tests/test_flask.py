@@ -3,8 +3,8 @@ import time
 from unittest import TestCase
 from flask import Flask
 
-from mashapeanalytics import capture as Capture
-from mashapeanalytics.middleware import FlaskMiddleware
+from galileoanalytics import capture as Capture
+from galileoanalytics.middleware import FlaskMiddleware
 from tests.helpers import host, zmq_pull_once
 
 ##

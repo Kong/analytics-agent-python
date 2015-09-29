@@ -7,8 +7,8 @@ from six.moves.urllib.request import urlopen
 from werkzeug.test import Client
 from wsgiref.simple_server import make_server
 
-from mashapeanalytics import capture as Capture
-from mashapeanalytics.middleware import WsgiMiddleware
+from galileoanalytics import capture as Capture
+from galileoanalytics.middleware import WsgiMiddleware
 from tests.helpers import host, zmq_pull_once
 
 ##

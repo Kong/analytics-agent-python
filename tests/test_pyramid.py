@@ -5,8 +5,8 @@ from pyramid.config import Configurator
 from pyramid.response import Response
 from werkzeug.test import Client
 
-from mashapeanalytics import capture as Capture
-from mashapeanalytics.middleware import WsgiMiddleware
+from galileoanalytics import capture as Capture
+from galileoanalytics.middleware import WsgiMiddleware
 from tests.helpers import host, zmq_pull_once
 
 ##
@@ -49,4 +49,3 @@ class PyramidMiddewareTest(TestCase):
     version, alf = zmq_pull_once(host())
 
     self.assertTrue(alf['har']['log']['entries'][0]['timings']['wait'] >= 10)
-

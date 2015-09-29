@@ -1,9 +1,9 @@
-from mashapeanalytics import capture as Capture
+from galileoanalytics import capture as Capture
 
 # Setup a Django environment
 from django.conf import settings
 settings.configure(
-  INSTALLED_APPS=['apianalytics'],
+  INSTALLED_APPS=['galileoanalytics'],
   ALLOWED_HOSTS=['testserver'],
   MASHAPE_ANALYTICS_SERVICE_TOKEN='SERVICE-TOKEN',
   MASHAPE_ANALYTICS_ENVIRONMENT='ENVIRONMENT',

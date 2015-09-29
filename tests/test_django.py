@@ -4,8 +4,8 @@ from unittest import TestCase
 from django.test import RequestFactory
 from django.http import HttpRequest, HttpResponse
 
-from mashapeanalytics import capture as Capture
-from mashapeanalytics.middleware import DjangoMiddleware
+from galileoanalytics import capture as Capture
+from galileoanalytics.middleware import DjangoMiddleware
 from tests.helpers import host, zmq_pull_once
 
 requestFactory = RequestFactory()
@@ -68,4 +68,3 @@ class DjangoMiddewareTest(TestCase):
 
     self.assertEqual(version, 'alf_1.0.0')
     self.assertIn('json', response['Content-Type'])
-

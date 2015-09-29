@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-version = '1.0.5'
+version = '1.0.0'
 
 setup(
-  name='mashape-analytics',
+  name='galileo-analytics',
   version=version,
-  description='Python Agent for Mashape Analytics',
+  description='Python Agent for Mashape Galileo',
   author='Mashape',
   author_email='opensource@mashape.com',
   url='https://github.com/Mashape/analytics-agent-python',

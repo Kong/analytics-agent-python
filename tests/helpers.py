@@ -2,7 +2,7 @@ import zmq
 import ujson
 from threading import Thread
 
-from mashapeanalytics import capture as Capture
+from galileoanalytics import capture as Capture
 
 
 def zmq_pull_once(host):
