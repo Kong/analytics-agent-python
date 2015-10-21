@@ -5,11 +5,13 @@ import socket
 
 from datetime import datetime
 from django.conf import settings
+from six.moves import cStringIO
 from six.moves.urllib.parse import parse_qs
 
 from mashapeanalytics import capture as Capture
 from mashapeanalytics.alf import Alf
 
+from werkzeug.wrappers import Request
 
 class DjangoMiddleware(object):
 
@@ -26,9 +28,7 @@ class DjangoMiddleware(object):
 
   def process_request(self, request):
     request.META['MASHAPE_ANALYTICS.STARTED_DATETIME'] = datetime.utcnow()
-    # import pdb;
-    # pdb.set_trace()
-    # print 'CAPTURE REQUEST: ', request.startedDateTime
+    request.META['galileo.request'] = Request(request.META)
 
   def request_header_size(self, request):
     # {METHOD} {URL} HTTP/1.1\r\n = 12 extra characters for space between method and url, and ` HTTP/1.1\r\n`
@@ -62,7 +62,9 @@ class DjangoMiddleware(object):
     requestHeaders = [{'name': re.sub('^HTTP_', '', header), 'value': value} for (header, value) in request.META.items() if header.startswith('HTTP_')]
     requestHeaderSize = self.request_header_size(request)
     requestQueryString = [{'name': name, 'value': (value[0] if len(value) > 0 else None)} for name, value in parse_qs(request.META.get('QUERY_STRING', '')).items()]
-    requestContentSize = len(request.body)
+
+    r = request.META.get('galileo.request')
+    requestContentSize = r.content_length or 0
 
     responseHeaders = [{'name': header, 'value': value[-1]} for (header, value) in response._headers.items()]
     responseHeadersSize = self.response_header_size(response)
@@ -119,4 +121,3 @@ class DjangoMiddleware(object):
     Capture.record(alf.json)
 
     return response
-

@@ -7,6 +7,8 @@ from datetime import datetime
 from six.moves.urllib.parse import parse_qs
 from six.moves.http_cookies import SimpleCookie
 
+from werkzeug.wrappers import Request
+
 from mashapeanalytics import capture as Capture
 from mashapeanalytics.alf import Alf
 
@@ -95,15 +97,13 @@ class WsgiMiddleware(object):
         iterable.close()
 
       # Construct and send ALF
+      r = Request(env)
+
       requestHeaders = [{'name': self.request_header_name(header), 'value': value} for (header, value) in env.items() if header.startswith('HTTP_')]
       requestHeaderSize = self.request_header_size(env)
       requestQueryString = [{'name': name, 'value': value[0]} for name, value in parse_qs(env.get('QUERY_STRING', '')).items()]
 
-      if not hasattr(env['wsgi.input'], 'seek'):
-        body = cStringIO(env['wsgi.input'].read())
-        env['wsgi.input'] = body
-      env['wsgi.input'].seek(0, os.SEEK_END)
-      requestContentSize = env['wsgi.input'].tell()
+      requestContentSize = r.content_length
 
       responseHeaders = [{'name': header, 'value': value} for (header, value) in env['MashapeAnalytics.responseHeaders']]
       responseHeadersSize = self.response_header_size(env)
