@@ -2,3 +2,4 @@ pytz==2015.2
 pyzmq==14.5.0
 six==1.9.0
 ujson==1.33
+Werkzeug==0.10.4
