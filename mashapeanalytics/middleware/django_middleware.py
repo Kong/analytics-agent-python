@@ -64,7 +64,7 @@ class DjangoMiddleware(object):
     requestQueryString = [{'name': name, 'value': (value[0] if len(value) > 0 else None)} for name, value in parse_qs(request.META.get('QUERY_STRING', '')).items()]
 
     r = request.META.get('galileo.request')
-    requestContentSize = r.content_length or 0
+    requestContentSize = r.content_length if not None else 0
 
     responseHeaders = [{'name': header, 'value': value[-1]} for (header, value) in response._headers.items()]
     responseHeadersSize = self.response_header_size(response)
@@ -87,7 +87,7 @@ class DjangoMiddleware(object):
           'size': requestContentSize,
           'mimeType': request.META.get('CONTENT_TYPE', 'application/octet-stream')
         },
-        'bodySize': requestHeaderSize + requestContentSize
+        'bodySize': requestContentSize
       },
       'response': {
         'status': response.status_code,
