@@ -103,7 +103,7 @@ class WsgiMiddleware(object):
       requestHeaderSize = self.request_header_size(env)
       requestQueryString = [{'name': name, 'value': value[0]} for name, value in parse_qs(env.get('QUERY_STRING', '')).items()]
 
-      requestContentSize = r.content_length
+      requestContentSize = r.content_length or 0
 
       responseHeaders = [{'name': header, 'value': value} for (header, value) in env['MashapeAnalytics.responseHeaders']]
       responseHeadersSize = self.response_header_size(env)
