@@ -7,12 +7,12 @@ from os.path import join
 SQL_FILE = join(tempfile.gettempdir(), 'galileo.db')
 initialized = False
 
-SQL_CREATE_TABLE = 'CREATE TABLE IF NOT EXISTS alfs (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, alf TEXT)'
-SQL_INSERT = 'INSERT INTO alfs (alf) VALUES (?)'
-SQL_COUNT = 'SELECT COUNT(1) FROM alfs'
-SQL_TRUNCATE = 'DELETE FROM alfs; VACUUM;'
-SQL_GET_ALFS = 'SELECT id, alf FROM alfs ORDER BY created_at ASC LIMIT ?'
-SQL_DELETE = 'DELETE FROM alfs WHERE id in (?)'
+SQL_CREATE_TABLE = 'CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, json TEXT)'
+SQL_INSERT = 'INSERT INTO queue (json) VALUES (?)'
+SQL_COUNT = 'SELECT COUNT(1) FROM queue'
+SQL_TRUNCATE = 'DELETE FROM queue; VACUUM;'
+SQL_GET_ALFS = 'SELECT id, json FROM queue ORDER BY created_at ASC LIMIT ?'
+SQL_DELETE = 'DELETE FROM queue WHERE id in (?)'
 
 class open_client(object):
     def __init__(self):
@@ -39,12 +39,12 @@ class Storage(object):
       client.execute(query, params)
       return client.fetchone()
 
-  def put(self, alf):
-    self._execute_(SQL_INSERT, (ujson.dumps(alf),))
+  def put(self, obj):
+    self._execute_(SQL_INSERT, (ujson.dumps(obj),))
 
-  def put_all(self, alfs=[]):
+  def put_all(self, objs=[]):
     with open_client() as (client, connection):
-      client.executemany(SQL_INSERT, [(ujson.dumps(alf),) for alf in alfs])
+      client.executemany(SQL_INSERT, [(ujson.dumps(obj),) for obj in objs])
       connection.commit()
 
   def get(self, size):

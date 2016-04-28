@@ -4,5 +4,6 @@
 # from .test_wsgi import *
 # from .test_pyramid import *
 
+from alf import *
 from storage import *
 from transport import *

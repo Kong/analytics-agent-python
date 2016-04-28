@@ -13,7 +13,7 @@ class Analytics(object):
 
   def submit(self, alf):
     self.running_count += 1
-    self.store.put(alf)
+    self.store.put(dict(alf))
 
     if not self.timer:
       self.timer = Timer(self.flush_timeout, self.flush)
@@ -27,11 +27,11 @@ class Analytics(object):
   def flush(self):
     # get alfs, delete from sqlite, send them
     rows = self.store.get(self.batch_size)
-    alf_ids = [row[0] for row in rows]
-    alfs = [row[1] for row in rows]
-    self.delete(alf_ids)
+    obj_ids = [row[0] for row in rows]
+    objs = [row[1] for row in rows]
+    self.delete(obj_ids)
     try:
-      self.transport.send(alfs)
+      self.transport.send(objs)
     except:
       # on connection error or timeout, add alfs back in
-      self.put_all(alfs)
+      self.put_all(objs)

@@ -12,7 +12,7 @@ class StorageTest(TestCase):
     storage.reset()
 
     for fixture in fixtures:
-      storage._execute_('INSERT INTO alfs (alf) VALUES (?)', (ujson.dumps(fixture),))
+      storage._execute_('INSERT INTO queue (json) VALUES (?)', (ujson.dumps(fixture),))
 
   def tearDown(self):
     pass
@@ -23,26 +23,26 @@ class StorageTest(TestCase):
   def test_should_count(self):
     self.assertEqual(len(fixtures), storage.count())
 
-  def test_should_put_alf_into_storage(self):
+  def test_should_put_obj_into_storage(self):
     storage.put({'test': 'test'})
-    row = storage._fetch_one_('SELECT COUNT(1) FROM alfs')
+    row = storage._fetch_one_('SELECT COUNT(1) FROM queue')
     self.assertEqual(len(fixtures) + 1, row[0])
 
-  def test_should_put_multiple_alfs_into_storage(self):
+  def test_should_put_multiple_objs_into_storage(self):
     storage.put_all([{'test': 'test_1'}, {'test': 'test_2'}])
-    row = storage._fetch_one_('SELECT COUNT(1) FROM alfs')
+    row = storage._fetch_one_('SELECT COUNT(1) FROM queue')
     self.assertEqual(len(fixtures) + 2, row[0])
 
-  def test_should_get_alfs_into_storage(self):
+  def test_should_get_objs_into_storage(self):
     rows = storage.get(len(fixtures))
     self.assertEqual(len(fixtures), len(rows))
 
     for index, row in enumerate(rows):
       self.assertEqual(row[1], fixtures[index])
 
-  def test_should_delete_alf(self):
-    id = storage._fetch_one_('SELECT id FROM alfs LIMIT 1')[0]
+  def test_should_delete_obj(self):
+    id = storage._fetch_one_('SELECT id FROM queue LIMIT 1')[0]
     storage.delete([id])
 
-    row = storage._fetch_one_('SELECT COUNT(1) FROM alfs')
+    row = storage._fetch_one_('SELECT COUNT(1) FROM queue')
     self.assertEqual(len(fixtures) - 1, row[0])

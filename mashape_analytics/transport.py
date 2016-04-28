@@ -12,7 +12,7 @@ class HttpTransport(object):
     self.connection_timeout = connection_timeout
 
   def send(self, alfs):
-    payload = ujson.dumps(alfs)
+    payload = ujson.dumps([dict(alf) for alf in alfs])
     response = requests.post(self.url, data=payload, timeout=self.connection_timeout, headers={'Content-Type': 'application/json'})
 
     print reponse.text
