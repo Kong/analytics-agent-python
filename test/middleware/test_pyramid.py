@@ -7,7 +7,7 @@ from werkzeug.test import Client
 
 from galileoanalytics import capture as Capture
 from galileoanalytics.middleware import WsgiMiddleware
-from tests.helpers import host, zmq_pull_once
+from test.helpers import host, zmq_pull_once
 
 ##
 # Pyramid App

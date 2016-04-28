@@ -5,7 +5,7 @@ from flask import Flask
 
 from galileoanalytics import capture as Capture
 from galileoanalytics.middleware import FlaskMiddleware
-from tests.helpers import host, zmq_pull_once
+from test.helpers import host, zmq_pull_once
 
 ##
 # Flask App

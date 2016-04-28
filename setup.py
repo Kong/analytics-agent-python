@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 version = '1.0.0'
 
 setup(
-  name='galileo-analytics',
+  name='mashape-analytics',
   version=version,
   description='Python Agent for Mashape Galileo',
   author='Mashape',
@@ -11,13 +11,12 @@ setup(
   url='https://github.com/Mashape/analytics-agent-python',
   download_url = 'https://github.com/Mashape/analytics-agent-python/archive/v{0}.zip'.format(version),
   license='MIT',
-  packages=find_packages(exclude=['tests']),
+  packages=find_packages(exclude=['test']),
   zip_safe=False,
   install_requires=[
-    'pytz==2015.2',
-    'pyzmq==14.5.0',
-    'six==1.9.0',
-    'ujson==1.33'
+    'pytz==2016.4',
+    'six==1.10.0',
+    'ujson==1.35'
   ],
   include_package_data=True,
   classifiers=[

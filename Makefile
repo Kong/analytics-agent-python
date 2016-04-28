@@ -1,13 +1,11 @@
-all: install
-
 install:
 	python setup.py install
 
 test: install
-	python -m unittest -v tests
+	python -m unittest -v test
 
 clean:
-	rm -rf galileo_analytics.egg-info build dist
+	rm -rf mashape_analytics.egg-info build dist
 	python setup.py clean
 
 

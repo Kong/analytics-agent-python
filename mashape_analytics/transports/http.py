@@ -9,7 +9,7 @@ from .base import BaseTransport
 
 class HttpTransport(BaseTransport, Thread):
 
-  def __init__(self, host):
+  def __init__(self, host='https://collector.galileo.mashape/1.1.0/batch'):
     super(HttpTransport, self).__init__(host)
 
     self.lock = Lock()
@@ -33,8 +33,8 @@ class HttpTransport(BaseTransport, Thread):
   def run(self):
     last_time = now()
 
-    while self.running
-      if (now() - last_time) >= self.batch_interval # or len(self.batch) > self.batch_size:
+    while self.running:
+      if (now() - last_time) >= self.batch_interval: # or len(self.batch) > self.batch_size:
         self.flush()
       # sleep(self.polling_interval)
       sleep(self.batch_interval)

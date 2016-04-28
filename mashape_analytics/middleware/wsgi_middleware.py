@@ -7,11 +7,11 @@ from datetime import datetime
 from six.moves.urllib.parse import parse_qs
 from six.moves.http_cookies import SimpleCookie
 
-from mashapeanalytics import capture as Capture
-from mashapeanalytics.alf import Alf
+from mashape_analytics import capture as Capture
+from mashape_analytics.alf import Alf
 
 class WsgiMiddleware(object):
-  def __init__(self, app, serviceToken, environment=None, host=None):
+  def __init__(self, app, serviceToken, environment=None, host=None, port=None):
     self.app = app
     self.serviceToken = serviceToken
     self.environment = environment

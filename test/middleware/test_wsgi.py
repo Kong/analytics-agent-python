@@ -9,7 +9,7 @@ from wsgiref.simple_server import make_server
 
 from galileoanalytics import capture as Capture
 from galileoanalytics.middleware import WsgiMiddleware
-from tests.helpers import host, zmq_pull_once
+from test.helpers import host, zmq_pull_once
 
 ##
 # Wsgi App

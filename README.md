@@ -4,12 +4,12 @@
 
 ## Requirements
 
-- [ZeroMQ](http://zeromq.org/intro:get-the-software)
+- [Sqlite3](http://zeromq.org/intro:get-the-software)
 
 ## Installation
 
 ```sh
-pip install galileo-analytics
+pip install mashape-analytics
 ```
 
 ## Usage

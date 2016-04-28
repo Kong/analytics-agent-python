@@ -2,7 +2,7 @@
 # i.e. from mashapeanalytics.middleware import DjangoMiddleware
 # This is purely for discovery.
 
-from galileoanalytics.middleware.wsgi_middleware import WsgiMiddleware
+from mashape_analytics.middleware.wsgi_middleware import WsgiMiddleware
 
 '''
 Django Framework
@@ -10,7 +10,7 @@ Django Framework
 try:
   from django.conf import settings
 
-  from galileoanalytics.middleware.django_middleware import DjangoMiddleware
+  from mashape_analytics.middleware.django_middleware import DjangoMiddleware
 except ImportError as e:
   pass
 
@@ -21,7 +21,7 @@ Flask Framework
 try:
   import flask
 
-  from galileoanalytics.middleware.wsgi_middleware import WsgiMiddleware as FlaskMiddleware
+  from mashape_analytics.middleware.wsgi_middleware import WsgiMiddleware as FlaskMiddleware
 except ImportError as e:
   pass
 
@@ -31,7 +31,7 @@ Pyramid Framework
 try:
   import pyramid
 
-  from galileoanalytics.middleware.wsgi_middleware import WsgiMiddleware as PyramidMiddleware
+  from mashape_analytics.middleware.wsgi_middleware import WsgiMiddleware as PyramidMiddleware
 except ImportError as e:
   pass
 

@@ -4,9 +4,9 @@ from unittest import TestCase
 from django.test import RequestFactory
 from django.http import HttpRequest, HttpResponse
 
-from galileoanalytics import capture as Capture
-from galileoanalytics.middleware import DjangoMiddleware
-from tests.helpers import host, zmq_pull_once
+from . import Capture
+from mashape_analytics.middleware import DjangoMiddleware
+from test.helpers import host, zmq_pull_once
 
 requestFactory = RequestFactory()
 
