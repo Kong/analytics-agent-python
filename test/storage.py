@@ -1,7 +1,7 @@
 import ujson
 
 from unittest import TestCase
-from mashape_analytics import Storage
+from mashape_analytics.storage import Storage
 
 storage = Storage()
 with open('test/fixtures/storage.json') as file:
@@ -17,17 +17,32 @@ class StorageTest(TestCase):
   def tearDown(self):
     pass
 
-  def test_should_count(self):
-    self.assertEqual(len(fixtures), storage.count())
-
   def test_should_recover_from_corrupt_database(self):
     pass
+
+  def test_should_count(self):
+    self.assertEqual(len(fixtures), storage.count())
 
   def test_should_put_alf_into_storage(self):
     storage.put({'test': 'test'})
     row = storage._fetch_one_('SELECT COUNT(1) FROM alfs')
     self.assertEqual(len(fixtures) + 1, row[0])
 
+  def test_should_put_multiple_alfs_into_storage(self):
+    storage.put_all([{'test': 'test_1'}, {'test': 'test_2'}])
+    row = storage._fetch_one_('SELECT COUNT(1) FROM alfs')
+    self.assertEqual(len(fixtures) + 2, row[0])
+
   def test_should_get_alfs_into_storage(self):
-    storage.get_batch_and_delete(3)
-    pass
+    rows = storage.get(len(fixtures))
+    self.assertEqual(len(fixtures), len(rows))
+
+    for index, row in enumerate(rows):
+      self.assertEqual(row[1], fixtures[index])
+
+  def test_should_delete_alf(self):
+    id = storage._fetch_one_('SELECT id FROM alfs LIMIT 1')[0]
+    storage.delete([id])
+
+    row = storage._fetch_one_('SELECT COUNT(1) FROM alfs')
+    self.assertEqual(len(fixtures) - 1, row[0])

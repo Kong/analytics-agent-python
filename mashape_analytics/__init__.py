@@ -4,5 +4,4 @@
 
 # import storage
 
-from storage import Storage
-store = Storage()
+# from storage import Storage

@@ -11,6 +11,8 @@ SQL_CREATE_TABLE = 'CREATE TABLE IF NOT EXISTS alfs (id INTEGER PRIMARY KEY AUTO
 SQL_INSERT = 'INSERT INTO alfs (alf) VALUES (?)'
 SQL_COUNT = 'SELECT COUNT(1) FROM alfs'
 SQL_TRUNCATE = 'DELETE FROM alfs; VACUUM;'
+SQL_GET_ALFS = 'SELECT id, alf FROM alfs ORDER BY created_at ASC LIMIT ?'
+SQL_DELETE = 'DELETE FROM alfs WHERE id in (?)'
 
 class open_client(object):
     def __init__(self):
@@ -40,8 +42,17 @@ class Storage(object):
   def put(self, alf):
     self._execute_(SQL_INSERT, (ujson.dumps(alf),))
 
-  def get_batch_and_delete(self, size):
-    pass
+  def put_all(self, alfs=[]):
+    with open_client() as (client, connection):
+      client.executemany(SQL_INSERT, [(ujson.dumps(alf),) for alf in alfs])
+      connection.commit()
+
+  def get(self, size):
+    with open_client() as (client, connection):
+      return [(row[0], ujson.loads(row[1])) for row in client.execute(SQL_GET_ALFS, (size,))]
+
+  def delete(self, ids=[]):
+    self._execute_(SQL_DELETE, (','.join([str(id) for id in ids]),))
 
   def count(self):
     return self._fetch_one_(SQL_COUNT)[0]
