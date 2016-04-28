@@ -10,7 +10,7 @@ Django Framework
 try:
   from django.conf import settings
 
-  from mashape_analytics.middleware.django_middleware import DjangoMiddleware
+  from mashape_analytics.middleware.wsgi_middleware import WsgiMiddleware as DjangoMiddleware
 except ImportError as e:
   pass
 

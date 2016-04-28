@@ -1,22 +1,23 @@
 from setuptools import setup, find_packages
 
-version = '1.0.0'
+VERSION = '3.0.0'
 
 setup(
   name='mashape-analytics',
-  version=version,
+  version=VERSION,
   description='Python Agent for Mashape Galileo',
   author='Mashape',
   author_email='opensource@mashape.com',
   url='https://github.com/Mashape/analytics-agent-python',
-  download_url = 'https://github.com/Mashape/analytics-agent-python/archive/v{0}.zip'.format(version),
+  download_url = 'https://github.com/Mashape/analytics-agent-python/archive/v{0}.zip'.format(VERSION),
   license='MIT',
   packages=find_packages(exclude=['test']),
   zip_safe=False,
   install_requires=[
-    'pytz==2016.4',
+    'requests==2.9.1',
     'six==1.10.0',
-    'ujson==1.35'
+    'ujson==1.35',
+    'Werkzeug==0.11.9'
   ],
   include_package_data=True,
   classifiers=[
