@@ -1,11 +1,14 @@
 from multiprocessing import Process, Queue
-from wsgiref.simple_server import make_server, WSGIRequestHandler
 from werkzeug.wrappers import Request
 
-class QuietHandler(WSGIRequestHandler):
-  def log_request(*args, **kw): pass
+def make_server(port, handler):
+  from wsgiref.simple_server import make_server, WSGIRequestHandler
+  class QuietHandler(WSGIRequestHandler):
+    def log_request(*args, **kw): pass
+  options = {'handler_class': QuietHandler}
+  return make_server('127.0.0.1', port, handler, **options)
 
-class app(object):
+class collector(object):
   def __init__(self, port, status, headers, response):
     def handler(environ, start_response):
       request = Request(environ)
@@ -15,8 +18,7 @@ class app(object):
       return [response]
 
     self.queue = Queue()
-    options = {'handler_class': QuietHandler}
-    self.server = make_server('127.0.0.1', port, handler, **options)
+    self.server = make_server(port, handler)
 
   def __enter__(self):
     def run_app(server):
@@ -29,4 +31,5 @@ class app(object):
     return self.queue
 
   def __exit__(self, exc_type, exc_val, exc_tb):
+    self.process.terminate()
     self.process.join()

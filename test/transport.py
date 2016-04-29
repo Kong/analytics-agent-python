@@ -3,7 +3,7 @@ import ujson
 from unittest import TestCase
 from mashape_analytics.transport import HttpTransport
 from mashape_analytics.alf import Alf
-from test.helpers import app
+from test.helpers import collector
 
 transport = HttpTransport('localhost', 12345, 30)
 
@@ -20,7 +20,7 @@ class TransportTest(TestCase):
     status = '200 OK' # HTTP Status
     headers = [('Content-type', 'application/json')] # HTTP Headers
 
-    with app(12345, status, headers, 'Yo!') as requests:
+    with collector(12345, status, headers, 'Yo!') as requests:
       transport.send([alf])
 
       request = requests.get()

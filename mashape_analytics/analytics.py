@@ -4,22 +4,21 @@ from storage import Storage
 from transport import HttpTransport
 
 class Analytics(object):
-  def __init__(self, host, port, batch_size, flush_timeout, connection_timeout, retry_count):
-    self.batch_size = batch_size
+  def __init__(self, host, port, queue_size, flush_timeout, connection_timeout, retry_count):
+    self.queue_size = queue_size
     self.flush_timeout = flush_timeout
     self.timer = None
     self.store = Storage()
     self.transport = HttpTransport(host, port, connection_timeout, retry_count)
 
   def submit(self, alf):
-    self.running_count += 1
     self.store.put(dict(alf))
 
     if not self.timer:
-      self.timer = Timer(self.flush, self.flush)
+      self.timer = Timer(self.flush_timeout, self.flush)
+      self.timer.start()
 
-    if self.store.count() >= self.batch_size:
-      # print 'Flushing (batch full)'
+    if self.store.count() >= self.queue_size:
       self.timer.cancel()
       p = Process(target=self.flush)
       p.start()
@@ -27,12 +26,11 @@ class Analytics(object):
 
   def flush(self):
     # get alfs, delete from sqlite, send them
-    rows = self.store.get(self.batch_size)
+    rows = self.store.get(self.queue_size)
     obj_ids = [row[0] for row in rows]
     objs = [row[1] for row in rows]
-    self.delete(obj_ids)
+    self.store.delete(obj_ids)
     try:
-      # print 'send'
       self.transport.send(objs)
     except:
       # on connection error or timeout, add alfs back in

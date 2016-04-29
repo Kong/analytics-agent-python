@@ -1,16 +1,19 @@
 import socket
 import base64
 
-from werkzeug.wrappers import Request
-from mashape_analytics.analytics import Analytics
 from six import StringIO
+from datetime import datetime
+from werkzeug.wrappers import Request
+from six.moves.urllib.parse import parse_qs
+
+from mashape_analytics import Alf, Analytics
 
 MAX_CONTENT_SIZE = 30 * 1024 * 1024
 
 class WsgiMiddleware(object):
   def __init__(self, app, serviceToken, environment=None, log_bodies='none', retry_count=0, connection_timeout=30, flush_timeout=2, queue_size=1000, host='collector.galileo.mashape.com', port=443, fail_log_path=None):
     self.app = app
-    self.analytics = Analytics(host, port, batch_size, flush_timeout, connection_timeout)
+    self.analytics = Analytics(host, port, queue_size, flush_timeout, connection_timeout, retry_count)
     self.serviceToken = serviceToken
     self.environment = environment
     self.log_bodies = log_bodies
@@ -18,7 +21,7 @@ class WsgiMiddleware(object):
     self.host = host
     self.port = port
     self.fail_log_path = fail_log_path
-    self.serverIPAddress = ocket.gethostbyname(socket.gethostname())
+    self.serverIPAddress = socket.gethostbyname(socket.gethostname())
 
   def request_body(self, environ):
       content_length = environ.get('CONTENT_LENGTH')
@@ -68,7 +71,7 @@ class WsgiMiddleware(object):
     env['MashapeAnalytics.startedDateTime'] = datetime.utcnow()
 
     # Track request details
-    request = Request(environ)
+    request = Request(env)
     requestContentSize = request.content_length
     requestBodyCaptured = True
     if requestContentSize is None:
@@ -77,7 +80,7 @@ class WsgiMiddleware(object):
       requestBodyCaptured = False
 
     if requestBodyCaptured and requestContentSize <= MAX_CONTENT_SIZE:
-      requestBody = environ['wsgi.input'].read(requestContentSize)
+      requestBody = env['wsgi.input'].read(requestContentSize)
       env['wsgi.input'] = StringIO(requestBody) # reset request body for the nested app
 
       requestEncodedBody = base64.b64encode(requestBody)
