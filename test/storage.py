@@ -1,4 +1,5 @@
 import ujson
+import time
 
 from unittest import TestCase
 from mashape_analytics.storage import Storage
@@ -17,11 +18,14 @@ class StorageTest(TestCase):
   def tearDown(self):
     pass
 
-  def test_should_recover_from_corrupt_database(self):
-    pass
-
   def test_should_count(self):
     self.assertEqual(len(fixtures), storage.count())
+
+  def test_should_get_oldest_time(self):
+    # should be between 0 and 1s
+    delta_time = time.time() - time.mktime(storage.oldest_time())
+    self.assertGreater(1, delta_time)
+    self.assertGreater(delta_time, 0)
 
   def test_should_put_obj_into_storage(self):
     storage.put({'test': 'test'})

@@ -1,15 +1,18 @@
 import sqlite3
 import tempfile
 import ujson
+import time
 
 from os.path import join
 
 SQL_FILE = join(tempfile.gettempdir(), 'galileo.db')
 initialized = False
 
-SQL_CREATE_TABLE = 'CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, json TEXT)'
+SQL_CREATE_TABLE = 'CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, json TEXT)'
+SQL_CREATE_INDEX = 'CREATE INDEX IF NOT EXISTS ix_queue_created_at ON queue (created_at ASC)'
 SQL_INSERT = 'INSERT INTO queue (json) VALUES (?)'
 SQL_COUNT = 'SELECT COUNT(1) FROM queue'
+SQL_OLDEST = 'SELECT created_at FROM queue ORDER BY created_at ASC LIMIT 1'
 SQL_TRUNCATE = 'DELETE FROM queue; VACUUM;'
 SQL_GET_ALFS = 'SELECT id, json FROM queue ORDER BY created_at ASC LIMIT ?'
 SQL_DELETE = 'DELETE FROM queue WHERE id in (?)'
@@ -27,7 +30,10 @@ class open_client(object):
 
 class Storage(object):
   def __init__(self):
-    self._execute_(SQL_CREATE_TABLE)
+    with open_client() as (client, connection):
+      client.execute(SQL_CREATE_TABLE)
+      client.execute(SQL_CREATE_INDEX)
+      connection.commit()
 
   def _execute_(self, query, params=[]):
     with open_client() as (client, connection):
@@ -56,6 +62,9 @@ class Storage(object):
 
   def count(self):
     return self._fetch_one_(SQL_COUNT)[0]
+
+  def oldest_time(self):
+    return time.strptime(self._fetch_one_(SQL_OLDEST)[0], '%Y-%m-%d %H:%M:%S')
 
   def reset(self):
     with open_client() as (client, connection):
