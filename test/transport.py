@@ -2,7 +2,7 @@ import time
 import ujson
 
 from unittest import TestCase
-from mashape_analytics.transport import HttpTransport
+from galileo_daemon.transport import HttpTransport
 from mashape_analytics.alf import Alf
 from requests.exceptions import ReadTimeout
 from test.helpers import collector
