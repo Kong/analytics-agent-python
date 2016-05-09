@@ -8,7 +8,27 @@ def make_server(port, handler):
   options = {'handler_class': QuietHandler}
   return make_server('127.0.0.1', port, handler, **options)
 
-class collector(object):
+class http_server(object):
+  def __init__(self, port, handler):
+    self.queue = Queue()
+    self.server = make_server(port, handler)
+
+  def __enter__(self):
+    def run_app(server):
+      server.handle_request()
+
+    self.process = Process(target=run_app, args=(self.server,))
+    self.process.start()
+
+    return self.queue
+
+  def __exit__(self, exc_type, exc_val, exc_tb):
+    self.server.server_close()
+    self.server.socket.close()
+    self.process.terminate()
+    self.process.join()
+
+class mock_server(object):
   def __init__(self, port, status, headers, response):
     def handler(environ, start_response):
       request = Request(environ)
@@ -22,6 +42,7 @@ class collector(object):
 
   def __enter__(self):
     def run_app(server):
+      print 'starting test app'
       server.handle_request()
 
     # self.process = Process(target=run_app, args=(self.port, self.queue, self.status, self.headers, self.response))
@@ -31,5 +52,7 @@ class collector(object):
     return self.queue
 
   def __exit__(self, exc_type, exc_val, exc_tb):
+    self.server.server_close()
+    self.server.socket.close()
     self.process.terminate()
     self.process.join()

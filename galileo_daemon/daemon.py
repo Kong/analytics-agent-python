@@ -1,69 +1,116 @@
 import os
+import sys
 import time
 import datetime
 
 from argparse import ArgumentParser
 from multiprocessing.managers import SyncManager
-from multiprocessing import Process, Queue
-from threading import Timer
+from multiprocessing import Process, Queue, TimeoutError
+from threading import Timer, Thread, Event
 
 from mashape_analytics.storage import Storage
 from transport import HttpTransport
 
+import multiprocessing, logging
+logger = multiprocessing.log_to_stderr()
+logger.setLevel(logging.INFO)
+
 store = Storage()
 
-def alive(store, flush_timeout):
+class KeepAliveThread(Thread):
   '''keep daemon lock alive'''
-  while True:
-    store.put_daemon_row(os.getpid(), datetime.datetime.now() + datetime.timedelta(seconds=flush_timeout + 1))
-    time.sleep(flush_timeout)
+  def __init__(self, threadID, pid, flush_timeout):
+    Thread.__init__(self)
+    self._stop = Event()
+    self.threadID = threadID
+    self.name = 'keep-alive'
+    self.pid = pid
+    self.flush_timeout = flush_timeout
 
-def consumer(queue, host, port, queue_size, flush_timeout, connection_timeout, retry_count):
-  '''queue consumer'''
-  transport = HttpTransport(host, port, connection_timeout, retry_count)
-  running_count = store.count()
-  oldest_time = store.oldest_time()
+  def stop(self):
+    self._stop.set()
 
-  def flush():
-    rows = store.get_then_delete(queue_size)
+  @property
+  def stopped(self):
+    return self._stop.isSet()
+
+  def run(self):
+    print 'keep-alive', self.pid
+    while not self.stopped:
+      store.put_daemon_row(self.pid, datetime.datetime.now() + datetime.timedelta(seconds=self.flush_timeout + 1))
+      time.sleep(self.flush_timeout)
+
+class AlfConsumerThread(Thread):
+  '''keep daemon lock alive'''
+  def __init__(self, threadID, queue, host, port, queue_size, flush_timeout, connection_timeout, retry_count):
+    Thread.__init__(self)
+    self._stop = Event()
+    self.threadID = threadID
+    self.name = 'alf-consumer'
+    self.transport = HttpTransport(host, port, connection_timeout, retry_count)
+    self.queue = queue
+    self.queue_size = queue_size
+    self.flush_timeout = flush_timeout
+
+  def stop(self):
+    self._stop.set()
+
+  @property
+  def stopped(self):
+    return self._stop.isSet()
+
+  def flush(self):
+    print 'flushing'
+    rows = store.get_then_delete(self.queue_size)
     objs = [row[1] for row in rows]
 
     try:
-      transport.send(objs)
+      self.transport.send(objs)
     except:
       pass
       # TODO log failure
       # TODO alternatively, on connection error or timeout, add alfs back in for retry
       # self.put_all(objs)
 
-  while True:
-    alf = queue.get()
+  def run(self):
+    running_count = store.count()
+    timer = None
 
-    if not oldest_time:
-      oldest_time = time.time()
+    while not self.stopped:
+      print 'waiting for alf'
+      try:
+        alf = self.queue.get(timeout=self.flush_timeout)
+      except TimeoutError:
+        continue
 
-    store.put(dict(alf))
-    running_count += 1
+      if alf == 'exit':
+        self.stop()
+        continue
 
-    if running_count >= queue_size:
-      running_count = 0
-      if timer:
-        timer.cancel()
-      flush()
+      print 'got alf'
 
-    if not timer:
-      timer = Timer(flush_timeout, flush)
-      timer.start()
+      store.put(dict(alf))
+      running_count += 1
 
+      if running_count >= self.queue_size:
+        running_count = 0
+        if timer:
+          timer.cancel()
+        self.flush()
 
-def create_server(queue, host='', port=8525):
+      if not timer:
+        timer = Timer(self.flush_timeout, flush)
+        timer.start()
+
+def create_server(queue, port=8525):
   class QueueManager(SyncManager): pass
   QueueManager.register('get_queue', callable=lambda: queue)
-  manager = QueueManager(address=(host, port), authKey='galileo')
+  manager = QueueManager(address=('', port), authkey='galileo')
 
   return manager
 
 if __name__ == '__main__':
+  print 'daemon', os.getpid()
   # TODO pass arguments
   parser = ArgumentParser(description='Daemon process for Galileo')
   parser.add_argument('--port', type=int, default=8525)
@@ -81,18 +128,31 @@ if __name__ == '__main__':
     expires = time.mktime(daemon_row[1].timetuple())
     if time.time() < expires:
       # TODO log exit
+      print daemon_row
+      print 'daemon already running'
       exit()  # process already running
 
-  # keep daemon lock alive
-  keep_alive_process = Process(target=alive, args=(store, args.flush_timeout,))
-  keep_alive_process.start()
 
-  # run daemon background worker
   queue = Queue()
-  p = Process(target=consumer, args=(queue, args.galileo_host, args.galileo_port, args.queue_size, args.flush_timeout, args.connection_timeout, args.retry_count,))
-  p.start()
 
+  # create threads
+  keep_alive = KeepAliveThread(1, os.getpid(), args.flush_timeout)
+  alf_consumer = AlfConsumerThread(2, queue, args.galileo_host, args.galileo_port, args.queue_size, args.flush_timeout, args.connection_timeout, args.retry_count)
+
+  # start the threads
+  keep_alive.start()
+  alf_consumer.start()
+
+  print 'starting daemon server'
   # run queue manager
-  server = create_server(queue, '', args.port)
+  server = create_server(queue, args.port)
   server.start()
-  p.join()
+
+  # close everything
+  print 'close up'
+  alf_consumer.join()
+  keep_alive.join()
+
+  server.terminate()
+  server.join()
+  server.shutdown()
