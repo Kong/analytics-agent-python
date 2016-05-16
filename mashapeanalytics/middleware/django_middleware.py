@@ -8,7 +8,8 @@ from django.conf import settings
 from six.moves import cStringIO
 from six.moves.urllib.parse import parse_qs
 
-from mashapeanalytics import capture as Capture
+# from mashapeanalytics import capture as Capture
+from mashapeanalytics.transport import HttpTransport
 from mashapeanalytics.alf import Alf
 
 from werkzeug.wrappers import Request
@@ -18,13 +19,15 @@ class DjangoMiddleware(object):
   def __init__(self):
     self.serviceToken = getattr(settings, 'MASHAPE_ANALYTICS_SERVICE_TOKEN', None)
     self.environment = getattr(settings, 'MASHAPE_ANALYTICS_ENVIRONMENT', None)
-    host = getattr(settings, 'MASHAPE_ANALYTICS_HOST', None)
+
+    host = getattr(settings, 'MASHAPE_ANALYTICS_HOST', 'collector.galileo.mashape.com')
+    port = int(getattr(settings, 'MASHAPE_ANALYTICS_PORT', '443'))
+    connection_timeout = int(getattr(settings, 'MASHAPE_ANALYTICS_CONNECTION_TIMEOUT', '30'))
+    retry_count = int(getattr(settings, 'MASHAPE_ANALYTICS_RETRY_COUNT', '0'))
+    self.transport = HttpTransport(host, port, connection_timeout, retry_count)
 
     if self.serviceToken is None:
       raise AttributeError("'MASHAPE_ANALYTICS_SERVICE_TOKEN' setting is not found.")
-
-    if host is not None:
-      Capture.DEFAULT_HOST = host
 
   def process_request(self, request):
     request.META['MASHAPE_ANALYTICS.STARTED_DATETIME'] = datetime.utcnow()
@@ -115,9 +118,6 @@ class DjangoMiddleware(object):
       }
     })
 
-    # import json
-    # print json.dumps(alf.json, indent=2)
-
-    Capture.record(alf.json)
+    self.transport.send(alf.json)
 
     return response

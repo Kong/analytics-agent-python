@@ -1,3 +1,3 @@
 import mashapeanalytics.middleware
 import mashapeanalytics.alf
-import mashapeanalytics.capture
+import mashapeanalytics.transport

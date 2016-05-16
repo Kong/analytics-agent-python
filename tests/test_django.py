@@ -4,7 +4,6 @@ from unittest import TestCase
 from django.test import RequestFactory
 from django.http import HttpRequest, HttpResponse
 
-from mashapeanalytics import capture as Capture
 from mashapeanalytics.middleware import DjangoMiddleware
 from tests.helpers import host, zmq_pull_once
 
@@ -27,12 +26,11 @@ def createResponse(status, headers, content=''):
 # Test Django middleware
 ##
 class DjangoMiddewareTest(TestCase):
-
   def setUp(self):
     self._middleware = DjangoMiddleware()
 
   def tearDown(self):
-    Capture.disconnect()
+    pass
 
   @property
   def middleware(self):
@@ -68,4 +66,3 @@ class DjangoMiddewareTest(TestCase):
 
     self.assertEqual(version, 'alf_1.0.0')
     self.assertIn('json', response['Content-Type'])
-

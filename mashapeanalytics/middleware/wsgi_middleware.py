@@ -9,17 +9,16 @@ from six.moves.http_cookies import SimpleCookie
 
 from werkzeug.wrappers import Request
 
-from mashapeanalytics import capture as Capture
+from mashapeanalytics.transport import HttpTransport
 from mashapeanalytics.alf import Alf
 
 class WsgiMiddleware(object):
-  def __init__(self, app, serviceToken, environment=None, host=None):
+  def __init__(self, app, serviceToken, environment=None, host='collector.galileo.mashape.com', port=443, connection_timeout=30, retry_count=0):
     self.app = app
     self.serviceToken = serviceToken
     self.environment = environment
 
-    if host is not None:
-      Capture.DEFAULT_HOST = host
+    self.transport = HttpTransport(host, port, connection_timeout, retry_count)
 
   def count_response_content_size(self, env, data):
     env['MashapeAnalytics.responseContentSize'] += len(data)
@@ -155,7 +154,4 @@ class WsgiMiddleware(object):
         }
       alf.addEntry(entry)
 
-      # import json
-      # print json.dumps(alf.json, indent=2)
-
-      Capture.record(alf.json)
+      self.transport.send(alf.json)

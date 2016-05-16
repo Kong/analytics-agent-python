@@ -27,7 +27,7 @@ class Alf(object):
           'version': '1.2',
           'creator': {
             'name': 'mashape-analytics-agent-python',
-            'version': '1.0.0'
+            'version': '1.1.0'
           },
           'entries': self.entries
         }

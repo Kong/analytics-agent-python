@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.0.7'
+version = '1.1.0'
 
 setup(
   name='mashape-analytics',
@@ -14,11 +14,11 @@ setup(
   packages=find_packages(exclude=['tests']),
   zip_safe=False,
   install_requires=[
-    'pytz==2015.2',
-    'pyzmq==14.5.0',
-    'six==1.9.0',
-    'ujson==1.33',
-    'Werkzeug==0.10.4'
+    'pytz==2016.4',
+    'requests==2.9.1',
+    'six==1.10.0',
+    'ujson==1.35',
+    'Werkzeug==0.11.9',
   ],
   include_package_data=True,
   classifiers=[
