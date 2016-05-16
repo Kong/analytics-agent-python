@@ -84,6 +84,7 @@ class AlfConsumerThread(Thread):
         continue
 
       if alf == 'exit':
+        print 'got exit signal'
         self.stop()
         continue
 
@@ -132,7 +133,6 @@ if __name__ == '__main__':
       print 'daemon already running'
       exit()  # process already running
 
-
   queue = Queue()
 
   # create threads
@@ -151,8 +151,12 @@ if __name__ == '__main__':
   # close everything
   print 'close up'
   alf_consumer.join()
+  keep_alive.stop()
   keep_alive.join()
 
-  server.terminate()
-  server.join()
+  print 'closing server'
   server.shutdown()
+  print 'waiting to close'
+  server.join()
+  print 'closed'
+  # sys.exit()

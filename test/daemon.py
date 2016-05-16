@@ -39,9 +39,10 @@ class DaemonTest(TestCase):
     queue = manager.get_queue()
     queue.put('exit')
     # self.manager.shutdown()
-    self.daemon_process.terminate()
+    time.sleep(1)
+    # self.daemon_process.join()
+    # self.daemon_process.terminate()
     print 'daemon process terminated'
-    pass
 
   def connect_to_manager(self):
     class QueueManager(SyncManager): pass
@@ -52,7 +53,7 @@ class DaemonTest(TestCase):
     print 'connected'
     return manager
 
-  @skip('')
+  # @skip('')
   def test_should_quit_daemon(self):
-    manager = self.connect_to_manager()
+    # manager = self.connect_to_manager()
     print 'started'
