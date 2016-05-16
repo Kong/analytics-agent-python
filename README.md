@@ -12,6 +12,8 @@
 pip install mashape-analytics
 ```
 
+If you're using Mac OS X. You may need [virtualenv](https://virtualenv.pypa.io/en/latest/). This is especially the case for El Capitan.
+
 ## Usage
 
 ### Django
