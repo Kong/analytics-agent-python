@@ -1,13 +1,13 @@
 import time
+import ujson
 
 from unittest import TestCase
 from pyramid.config import Configurator
 from pyramid.response import Response
 from werkzeug.test import Client
 
-from mashapeanalytics import capture as Capture
 from mashapeanalytics.middleware import WsgiMiddleware
-from tests.helpers import host, zmq_pull_once
+from tests.helpers import mock_server
 
 ##
 # Pyramid App
@@ -29,24 +29,26 @@ def create_app():
 # Test Pyramid
 ##
 class PyramidMiddewareTest(TestCase):
-
   def setUp(self):
-    # self.app = create_app()
-    # self.app.wsgi_app = WsgiMiddleware(self.app.wsgi_app, 'SERVICE_TOKEN', 'ENVIRONMENT', host())
-
-    self.app = WsgiMiddleware(create_app(), 'SERVICE_TOKEN', 'ENVIRONMENT', host())
+    self.app = WsgiMiddleware(create_app(), 'SERVICE_TOKEN', 'ENVIRONMENT', 'localhost', 56000)
 
   def tearDown(self):
-    Capture.disconnect()
+    pass
 
   def test_get(self):
-    client = Client(self.app)
-    data, status, headers = client.open()
-    data = (b'').join(data)
+    status = '200 OK' # HTTP Status
+    headers = [('Content-type', 'application/json')] # HTTP Headers
 
-    self.assertIn('Hello', str(data))
+    # Mock collector
+    with mock_server(56000, status, headers, 'Yo!') as collector:
+      client = Client(self.app)
+      data, status, headers = client.open()
+      data = (b'').join(data)
 
-    version, alf = zmq_pull_once(host())
+      self.assertIn('Hello', str(data))
 
-    self.assertTrue(alf['har']['log']['entries'][0]['timings']['wait'] >= 10)
+      request = collector.get()
+      self.assertEqual(request.get('url'), u'http://localhost:56000/1.0.0/single')
 
+      alf = ujson.loads(request.get('body'))
+      self.assertTrue(alf['har']['log']['entries'][0]['timings']['wait'] >= 10)

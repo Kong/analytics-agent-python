@@ -9,7 +9,7 @@ from werkzeug.test import Client
 from wsgiref.simple_server import make_server
 
 from mashapeanalytics.middleware import WsgiMiddleware
-from tests.helpers import host, mock_server
+from tests.helpers import mock_server
 
 ##
 # Wsgi App

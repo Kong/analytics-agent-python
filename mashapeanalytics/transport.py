@@ -23,7 +23,6 @@ class SendThread(Thread):
     return self._stop.isSet()
 
   def run(self):
-    print 'sending to', self.url
     payload = ujson.dumps(dict(self.alf))
 
     with requests.Session() as s:
