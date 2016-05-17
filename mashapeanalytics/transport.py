@@ -1,6 +1,8 @@
 import ujson
+import logging
 import requests
 
+from warnings import warn
 from threading import Timer, Thread, Event
 
 class SendThread(Thread):
@@ -30,7 +32,8 @@ class SendThread(Thread):
       s.mount('https://', requests.adapters.HTTPAdapter(max_retries=self.retry_count))
 
       response = s.post(self.url, data=payload, timeout=self.connection_timeout, headers={'Content-Type': 'application/json'})
-      # log response.text
+      if response.status_code != 200:
+        warn(response.text)
 
 class HttpTransport(object):
   def __init__(self, host, port=443, connection_timeout=30, retry_count=0):
@@ -44,6 +47,6 @@ class HttpTransport(object):
     self.retry_count = retry_count
 
   def send(self, alf):
+    ''' Non-blocking send '''
     send_alf = SendThread(self.url, alf, self.connection_timeout, self.retry_count)
     send_alf.start()
-    # Non-blocking

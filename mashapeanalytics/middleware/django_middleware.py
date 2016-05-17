@@ -21,9 +21,9 @@ class DjangoMiddleware(object):
     self.environment = getattr(settings, 'MASHAPE_ANALYTICS_ENVIRONMENT', None)
 
     host = getattr(settings, 'MASHAPE_ANALYTICS_HOST', 'collector.galileo.mashape.com')
-    port = int(getattr(settings, 'MASHAPE_ANALYTICS_PORT', '443'))
-    connection_timeout = int(getattr(settings, 'MASHAPE_ANALYTICS_CONNECTION_TIMEOUT', '30'))
-    retry_count = int(getattr(settings, 'MASHAPE_ANALYTICS_RETRY_COUNT', '0'))
+    port = getattr(settings, 'MASHAPE_ANALYTICS_PORT', 443)
+    connection_timeout = getattr(settings, 'MASHAPE_ANALYTICS_CONNECTION_TIMEOUT', 30)
+    retry_count = getattr(settings, 'MASHAPE_ANALYTICS_RETRY_COUNT', 0)
     self.transport = HttpTransport(host, port, connection_timeout, retry_count)
 
     if self.serviceToken is None:
@@ -67,7 +67,7 @@ class DjangoMiddleware(object):
     requestQueryString = [{'name': name, 'value': (value[0] if len(value) > 0 else None)} for name, value in parse_qs(request.META.get('QUERY_STRING', '')).items()]
 
     r = request.META.get('galileo.request')
-    requestContentSize = r.content_length if not None else 0
+    requestContentSize = r.content_length if r.content_length != None else 0
 
     responseHeaders = [{'name': header, 'value': value[-1]} for (header, value) in response._headers.items()]
     responseHeadersSize = self.response_header_size(response)
