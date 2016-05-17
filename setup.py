@@ -32,5 +32,10 @@ setup(
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Topic :: Utilities',
-  ]
+  ],
+  entry_points={
+    'paste.filter_app_factory': [
+      'mashape_analytics = mashapeanalytics:make_wsgi_app',
+    ],
+  }
 )

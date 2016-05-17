@@ -18,7 +18,7 @@ class WsgiMiddleware(object):
     self.serviceToken = serviceToken
     self.environment = environment
 
-    self.transport = HttpTransport(host, port, connection_timeout, retry_count)
+    self.transport = HttpTransport(host, int(port), int(connection_timeout), int(retry_count))
 
   def count_response_content_size(self, env, data):
     env['MashapeAnalytics.responseContentSize'] += len(data)
@@ -107,6 +107,12 @@ class WsgiMiddleware(object):
       responseHeaders = [{'name': header, 'value': value} for (header, value) in env['MashapeAnalytics.responseHeaders']]
       responseHeadersSize = self.response_header_size(env)
 
+      responseContentTypeHeaders = [header for header in env['MashapeAnalytics.responseHeaders'] if header[0] == 'Content-Type']
+      if len(responseContentTypeHeaders) > 0:
+        responseMimeType = responseContentTypeHeaders[0][1]
+      else:
+        responseMimeType = 'application/octet-stream'
+
       alf = Alf(self.serviceToken, self.environment, self.client_address(env))
       entry = {
         'startedDateTime': env['MashapeAnalytics.startedDateTime'].isoformat() + 'Z', # HACK for MashapeAnalytics server to validate date
@@ -131,7 +137,7 @@ class WsgiMiddleware(object):
           'headersSize': responseHeadersSize,
           'content': {
             'size': env['MashapeAnalytics.responseContentSize'],
-            'mimeType': [header for header in env['MashapeAnalytics.responseHeaders'] if header[0] == 'Content-Type'][0][1] or 'application/octet-stream'
+            'mimeType': responseMimeType
           },
           'bodySize': env['MashapeAnalytics.responseContentSize'],
           'redirectURL': next((value for (header, value) in env['MashapeAnalytics.responseHeaders'] if header == 'Location'), '')
@@ -147,7 +153,7 @@ class WsgiMiddleware(object):
           'ssl': -1
         }
       }
-      if env['CONTENT_LENGTH'] != '0':
+      if 'CONTENT_LENGTH' in env and env['CONTENT_LENGTH'] != '0':
         entry['request']['content'] = {
           'size': requestContentSize,
           'mimeType': env['CONTENT_TYPE'] or 'application/octet-stream'

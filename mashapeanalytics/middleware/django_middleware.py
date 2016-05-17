@@ -21,9 +21,9 @@ class DjangoMiddleware(object):
     self.environment = getattr(settings, 'MASHAPE_ANALYTICS_ENVIRONMENT', None)
 
     host = getattr(settings, 'MASHAPE_ANALYTICS_HOST', 'collector.galileo.mashape.com')
-    port = getattr(settings, 'MASHAPE_ANALYTICS_PORT', 443)
-    connection_timeout = getattr(settings, 'MASHAPE_ANALYTICS_CONNECTION_TIMEOUT', 30)
-    retry_count = getattr(settings, 'MASHAPE_ANALYTICS_RETRY_COUNT', 0)
+    port = int(getattr(settings, 'MASHAPE_ANALYTICS_PORT', 443))
+    connection_timeout = int(getattr(settings, 'MASHAPE_ANALYTICS_CONNECTION_TIMEOUT', 30))
+    retry_count = int(getattr(settings, 'MASHAPE_ANALYTICS_RETRY_COUNT', 0))
     self.transport = HttpTransport(host, port, connection_timeout, retry_count)
 
     if self.serviceToken is None:

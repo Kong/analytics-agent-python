@@ -30,6 +30,7 @@ MASHAPE_ANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN' # Replace with your App Servic
 MASHAPE_ANALYTICS_ENVIRONMENT = 'production' # Leave blank for default, or replace with your Environment ID
 
 ```
+
 ### Flask
 
 Add the middleware to `wsgi_app`:
@@ -75,6 +76,20 @@ if __name__ == '__main__':
 
   server = make_server('0.0.0.0', 8080, app)
   server.serve_forever()
+```
+
+### Pylons
+
+Add the middleware to your ini file.
+
+```ini
+[filter:mashape_analytics]
+use = egg:mashape_analytics#mashape_analytics
+serviceToken = SERVICE_TOKEN
+environment = production
+
+[pipeline]
+pipeline = mashape_analytics my_application
 ```
 
 ## Copyright and license
