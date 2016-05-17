@@ -2,10 +2,6 @@
 
 > for more information on Mashape Analytics, please visit [apianalytics.com](https://www.apianalytics.com)
 
-## Requirements
-
-- [ZeroMQ](http://zeromq.org/intro:get-the-software)
-
 ## Installation
 
 ```sh
