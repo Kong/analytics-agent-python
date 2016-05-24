@@ -24,8 +24,9 @@ MIDDLEWARE_CLASSES = (
 # Mashape Analytics
 MASHAPE_ANALYTICS_SERVICE_TOKEN = 'SERVICE_TOKEN' # Replace with your App Service Token
 MASHAPE_ANALYTICS_ENVIRONMENT = 'production' # Leave blank for default, or replace with your Environment ID
-
 ```
+
+**Note:** See [Django Configurations](https://github.com/Mashape/analytics-agent-python/wiki/Django-Configurations) for a full list of configuration properties.
 
 ### Flask
 
@@ -45,6 +46,8 @@ def hello_world():
 if __name__ == '__main__':
     app.run()
 ```
+
+**Note:** See [WSGI Configurations](https://github.com/Mashape/analytics-agent-python/wiki/WSGI-Configurations) for a full list of configuration properties.
 
 ### Pyramid
 
@@ -74,6 +77,8 @@ if __name__ == '__main__':
   server.serve_forever()
 ```
 
+**Note:** See [WSGI Configurations](https://github.com/Mashape/analytics-agent-python/wiki/WSGI-Configurations) for a full list of configuration properties.
+
 ### Pylons
 
 Add the middleware to your ini file.
@@ -87,6 +92,8 @@ environment = production
 [pipeline]
 pipeline = mashape_analytics my_application
 ```
+
+**Note:** See [WSGI Configurations](https://github.com/Mashape/analytics-agent-python/wiki/WSGI-Configurations) for a full list of configuration properties.
 
 ## Copyright and license
 
