@@ -18,7 +18,7 @@ setup(
     'requests==2.9.1',
     'six==1.10.0',
     'ujson==1.35',
-    'Werkzeug==0.11.9',
+    'Werkzeug==0.15.3',
   ],
   include_package_data=True,
   classifiers=[
