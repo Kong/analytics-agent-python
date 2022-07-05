@@ -17,7 +17,7 @@ setup(
     'pytz==2016.4',
     'requests==2.9.1',
     'six==1.10.0',
-    'ujson==1.35',
+    'ujson==5.4.0',
     'Werkzeug==0.11.9',
   ],
   include_package_data=True,
